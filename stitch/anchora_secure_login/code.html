@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Anchora Secure Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3fae",
+                        "primary-dark": "#162f85",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0f172a", /* Matched user request for deep navy */
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom geometric pattern for the left panel */
+        .geometric-grid {
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen overflow-hidden flex flex-col md:flex-row">
+<!-- Left Panel: Branding & Trust -->
+<div class="hidden md:flex md:w-[60%] bg-background-dark relative flex-col justify-between p-12 lg:p-20 geometric-grid text-white" data-alt="Abstract geometric grid pattern on dark blue background">
+<!-- Logo Area -->
+<div class="z-10">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-4xl text-blue-400">anchor</span>
+<h1 class="text-4xl font-black tracking-tight">Anchora</h1>
+</div>
+<p class="text-blue-200 text-lg font-medium tracking-wide opacity-80 pl-1">Gov · AI · Audit</p>
+</div>
+<!-- Trust Statements -->
+<div class="z-10 flex flex-col gap-8 max-w-lg">
+<div class="flex gap-4 items-start group">
+<div class="p-2 rounded-lg bg-white/10 group-hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-blue-300">psychology</span>
+</div>
+<div>
+<h3 class="text-xl font-bold mb-1 text-white">AI-augmented decisions</h3>
+<p class="text-slate-400 text-sm leading-relaxed">Enhance compliance accuracy with our proprietary decision intelligence models trained on global regulations.</p>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="p-2 rounded-lg bg-white/10 group-hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-blue-300">history_edu</span>
+</div>
+<div>
+<h3 class="text-xl font-bold mb-1 text-white">Immutable audit trail</h3>
+<p class="text-slate-400 text-sm leading-relaxed">Complete transparency with cryptographically secure logging of every action and decision point.</p>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="p-2 rounded-lg bg-white/10 group-hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-blue-300">admin_panel_settings</span>
+</div>
+<div>
+<h3 class="text-xl font-bold mb-1 text-white">Role-based governance</h3>
+<p class="text-slate-400 text-sm leading-relaxed">Granular access controls designed for enterprise security standards and organizational hierarchies.</p>
+</div>
+</div>
+</div>
+<!-- Footer/Copyright -->
+<div class="z-10 text-slate-500 text-sm">
+            © 2024 Anchora Intelligence Systems. All rights reserved.
+        </div>
+<!-- Decorative Overlay Gradient -->
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent pointer-events-none"></div>
+</div>
+<!-- Right Panel: Login Form -->
+<div class="flex-1 w-full md:w-[40%] bg-surface-light dark:bg-surface-dark flex flex-col justify-center items-center p-6 md:p-12 lg:p-16 h-full overflow-y-auto">
+<div class="w-full max-w-md flex flex-col gap-8">
+<!-- Mobile Logo (Visible only on small screens) -->
+<div class="md:hidden flex items-center gap-2 mb-4 text-primary dark:text-white">
+<span class="material-symbols-outlined text-3xl">anchor</span>
+<span class="text-2xl font-black">Anchora</span>
+</div>
+<div class="space-y-2 text-center md:text-left">
+<h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Sign in to Anchora</h2>
+<p class="text-slate-500 dark:text-slate-400">Welcome back. Please enter your credentials to access the secure portal.</p>
+</div>
+<form class="flex flex-col gap-5" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="email">Email address</label>
+<div class="relative">
+<input class="w-full h-12 px-4 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" id="email" placeholder="name@company.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="password">Password</label>
+<a class="text-sm font-medium text-primary hover:text-primary-dark dark:text-blue-400 dark:hover:text-blue-300" href="#">Forgot password?</a>
+</div>
+<div class="relative group">
+<input class="w-full h-12 pl-4 pr-12 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" id="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Remember Me Checkbox -->
+<div class="flex items-center gap-2">
+<input class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600" id="remember" type="checkbox"/>
+<label class="text-sm text-slate-600 dark:text-slate-400" for="remember">Remember this device for 30 days</label>
+</div>
+<!-- Submit Button -->
+<button class="w-full h-12 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 mt-2" type="submit">
+<span>Sign In</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</form>
+<div class="pt-6 border-t border-slate-200 dark:border-slate-700 text-center">
+<p class="text-sm text-slate-500 dark:text-slate-400">
+                    Need enterprise access? <a class="font-semibold text-primary hover:text-primary-dark dark:text-blue-400 dark:hover:text-blue-300" href="#">Contact Support</a>
+</p>
+</div>
+<!-- Security Badge -->
+<div class="flex justify-center items-center gap-2 mt-4 opacity-60">
+<span class="material-symbols-outlined text-slate-400 text-lg">lock</span>
+<span class="text-xs text-slate-400 font-medium">256-bit SSL Encrypted Connection</span>
+</div>
+</div>
+</div>
+</body></html>

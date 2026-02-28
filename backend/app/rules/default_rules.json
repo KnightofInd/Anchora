@@ -1,0 +1,29 @@
+[
+  {
+    "name": "High Risk Escalation",
+    "description": "Any decision with risk score above 7 requires senior approval",
+    "rule_definition": {
+      "condition": "risk_score > 7",
+      "action": "require_senior_approval",
+      "severity": "high"
+    }
+  },
+  {
+    "name": "Critical Risk Block",
+    "description": "Decisions with risk score above 9 are blocked until manual review",
+    "rule_definition": {
+      "condition": "risk_score > 9",
+      "action": "block",
+      "severity": "critical"
+    }
+  },
+  {
+    "name": "Low Confidence Review",
+    "description": "Decisions with confidence score below 0.4 require human review",
+    "rule_definition": {
+      "condition": "confidence_score < 0.4",
+      "action": "require_senior_approval",
+      "severity": "medium"
+    }
+  }
+]

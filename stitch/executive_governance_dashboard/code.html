@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Anchora - Executive Governance Dashboard</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3fae",
+                        "primary-hover": "#163296",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121520",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e2332",
+                        "border-light": "#e2e4e9",
+                        "border-dark": "#2a2f40",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "sm": "0.125rem",
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display antialiased min-h-screen flex overflow-hidden">
+<!-- Sidebar -->
+<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex flex-col h-full transition-transform duration-300 ease-in-out lg:translate-x-0 -translate-x-full lg:static lg:block shadow-sm">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary/10 rounded-lg p-1.5 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl">anchor</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">Anchora</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">Governance &amp; AI</p>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary group transition-colors" href="#">
+<span class="material-symbols-outlined text-xl" data-weight="fill">dashboard</span>
+<span class="text-sm font-semibold">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">balance</span>
+<span class="text-sm font-medium">Decisions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">account_tree</span>
+<span class="text-sm font-medium">Workflows</span>
+<span class="ml-auto bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">library_books</span>
+<span class="text-sm font-medium">Knowledge</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="text-sm font-medium">Audit Trail</span>
+</a>
+</nav>
+<div class="p-4 border-t border-border-light dark:border-border-dark">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500 text-sm">person</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Alex Chen</span>
+<span class="text-xs text-slate-500">Admin</span>
+</div>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- Header -->
+<header class="h-16 flex items-center justify-between px-6 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark shrink-0">
+<div class="flex items-center gap-4">
+<button class="lg:hidden text-slate-500 hover:text-slate-700">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Anchora Dashboard</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+</span>
+<input class="pl-9 pr-4 py-2 text-sm border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-background-dark focus:outline-none focus:ring-2 focus:ring-primary/50 w-64 text-slate-700 dark:text-slate-200" placeholder="Search decisions..." type="text"/>
+</div>
+<button class="relative p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 border border-white dark:border-surface-dark"></span>
+</button>
+<button class="flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>New Decision</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto p-6 lg:p-8">
+<div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row gap-6 h-full">
+<!-- Left Column (Stats + Table) -->
+<div class="flex-1 flex flex-col gap-6 min-w-0">
+<!-- Stats Strip -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+<!-- Stat Card 1 -->
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-primary/10 text-primary p-2 rounded-lg">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<span class="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span> 12%
+                                </span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Decisions</p>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">1,248</h3>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-500 p-2 rounded-lg">
+<span class="material-symbols-outlined">pending</span>
+</div>
+<span class="text-xs font-medium text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-full flex items-center gap-1">
+                                    +2 Today
+                                </span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Pending Workflows</p>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">14</h3>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-500 p-2 rounded-lg">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<span class="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-full flex items-center gap-1">
+                                    +0.4%
+                                </span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Compliance Rate</p>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">98.2%</h3>
+</div>
+<!-- Stat Card 4 -->
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-500 p-2 rounded-lg">
+<span class="material-symbols-outlined">policy</span>
+</div>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
+                                    Daily
+                                </span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Audit Events</p>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">45</h3>
+</div>
+</div>
+<!-- Recent Decisions Table -->
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm flex-1 flex flex-col overflow-hidden">
+<div class="px-6 py-5 border-b border-border-light dark:border-border-dark flex justify-between items-center">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Recent Decisions</h3>
+<button class="text-sm font-medium text-primary hover:text-primary-hover flex items-center gap-1">
+                                View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-background-light dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-border-light dark:border-border-dark">
+<th class="px-6 py-4">Decision Title</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4 w-48">Confidence</th>
+<th class="px-6 py-4">Risk Score</th>
+<th class="px-6 py-4 text-right">Date</th>
+<th class="px-6 py-4 w-10"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Vendor Approval - Acme Corp</span>
+<span class="text-xs text-slate-500">Procurement Policy v2</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                                Approved
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 98%;"></div>
+</div>
+<span class="text-xs font-medium text-slate-700 dark:text-slate-300 w-8">98%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                Low (12)
+                                            </div>
+</td>
+<td class="px-6 py-4 text-right text-sm text-slate-500">Oct 24, 2023</td>
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Loan Application #9921</span>
+<span class="text-xs text-slate-500">Credit Risk Model A</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                                                Pending Review
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 rounded-full" style="width: 75%;"></div>
+</div>
+<span class="text-xs font-medium text-slate-700 dark:text-slate-300 w-8">75%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                                Medium (45)
+                                            </div>
+</td>
+<td class="px-6 py-4 text-right text-sm text-slate-500">Oct 24, 2023</td>
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Policy Update v2.1</span>
+<span class="text-xs text-slate-500">Internal Governance</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+                                                Rejected
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 99%;"></div>
+</div>
+<span class="text-xs font-medium text-slate-700 dark:text-slate-300 w-8">99%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                                High (88)
+                                            </div>
+</td>
+<td class="px-6 py-4 text-right text-sm text-slate-500">Oct 23, 2023</td>
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Employee Access Request</span>
+<span class="text-xs text-slate-500">IT Security</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                                Approved
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 95%;"></div>
+</div>
+<span class="text-xs font-medium text-slate-700 dark:text-slate-300 w-8">95%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                Low (5)
+                                            </div>
+</td>
+<td class="px-6 py-4 text-right text-sm text-slate-500">Oct 23, 2023</td>
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Data Export Request</span>
+<span class="text-xs text-slate-500">GDPR Compliance</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-purple-500 mr-1.5"></span>
+                                                Flagged
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 rounded-full" style="width: 60%;"></div>
+</div>
+<span class="text-xs font-medium text-slate-700 dark:text-slate-300 w-8">60%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-600"></span>
+                                                Critical (92)
+                                            </div>
+</td>
+<td class="px-6 py-4 text-right text-sm text-slate-500">Oct 22, 2023</td>
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Side Activity Feed -->
+<div class="w-full lg:w-80 flex flex-col shrink-0">
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm h-full flex flex-col">
+<div class="px-5 py-5 border-b border-border-light dark:border-border-dark flex justify-between items-center">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Audit Events</h3>
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-5">
+<div class="relative pl-4 border-l border-slate-200 dark:border-slate-700 space-y-6">
+<!-- Event 1 -->
+<div class="relative">
+<div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-primary border-2 border-white dark:border-surface-dark ring-1 ring-slate-200 dark:ring-slate-700"></div>
+<p class="text-xs text-slate-400 font-medium mb-1">10 min ago</p>
+<p class="text-sm text-slate-900 dark:text-slate-200 font-medium">Policy violation detected</p>
+<p class="text-xs text-slate-500 mt-1">Vendor contract #4492 lacks improved indemnification clause.</p>
+</div>
+<!-- Event 2 -->
+<div class="relative">
+<div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white dark:border-surface-dark ring-1 ring-slate-200 dark:ring-slate-700"></div>
+<p class="text-xs text-slate-400 font-medium mb-1">45 min ago</p>
+<p class="text-sm text-slate-900 dark:text-slate-200 font-medium">Model retraining complete</p>
+<p class="text-xs text-slate-500 mt-1">Credit Risk v2 successfully deployed with 99.2% accuracy.</p>
+</div>
+<!-- Event 3 -->
+<div class="relative">
+<div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-amber-500 border-2 border-white dark:border-surface-dark ring-1 ring-slate-200 dark:ring-slate-700"></div>
+<p class="text-xs text-slate-400 font-medium mb-1">2 hours ago</p>
+<p class="text-sm text-slate-900 dark:text-slate-200 font-medium">Human review requested</p>
+<p class="text-xs text-slate-500 mt-1">Edge case found in Loan Application #9921 requiring supervisor approval.</p>
+<div class="mt-2">
+<button class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 transition-colors">Review Now</button>
+</div>
+</div>
+<!-- Event 4 -->
+<div class="relative">
+<div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-slate-300 dark:bg-slate-600 border-2 border-white dark:border-surface-dark ring-1 ring-slate-200 dark:ring-slate-700"></div>
+<p class="text-xs text-slate-400 font-medium mb-1">4 hours ago</p>
+<p class="text-sm text-slate-900 dark:text-slate-200 font-medium">System backup initiated</p>
+<p class="text-xs text-slate-500 mt-1">Automated daily snapshot of decision logs.</p>
+</div>
+<!-- Event 5 -->
+<div class="relative">
+<div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-purple-500 border-2 border-white dark:border-surface-dark ring-1 ring-slate-200 dark:ring-slate-700"></div>
+<p class="text-xs text-slate-400 font-medium mb-1">Yesterday</p>
+<p class="text-sm text-slate-900 dark:text-slate-200 font-medium">New Compliance Rule</p>
+<p class="text-xs text-slate-500 mt-1">Added EU AI Act preliminary checks to governance flow.</p>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-border-light dark:border-border-dark">
+<button class="w-full py-2 text-sm text-center text-primary font-medium hover:bg-primary/5 rounded-lg transition-colors">
+                                View Full Audit Log
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

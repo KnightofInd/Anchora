@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>New Decision - Anchora</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3fae",
+                        "primary-hover": "#16328d",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121520",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a1d29",
+                        "border-light": "#e2e4e9",
+                        "border-dark": "#2d3142",
+                        "text-main-light": "#0f111a",
+                        "text-main-dark": "#e2e4e9",
+                        "text-secondary-light": "#536293",
+                        "text-secondary-dark": "#94a3b8",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark antialiased h-screen w-full overflow-hidden">
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+<!-- Modal Container -->
+<div class="w-full max-w-[560px] flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-2xl ring-1 ring-black/5 dark:ring-white/10 overflow-hidden transform transition-all">
+<!-- Modal Header -->
+<div class="flex items-center justify-between px-6 py-5 border-b border-border-light dark:border-border-dark">
+<h2 class="text-xl font-bold tracking-tight text-text-main-light dark:text-text-main-dark">New Decision</h2>
+<button class="rounded-full p-2 text-text-secondary-light hover:bg-slate-100 dark:text-text-secondary-dark dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
+<span class="material-symbols-outlined text-[24px]">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="flex-1 overflow-y-auto px-6 py-6">
+<div class="space-y-5">
+<!-- Title Input -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-text-main-light dark:text-text-main-dark" for="title">
+                            Title <span class="text-red-500">*</span>
+</label>
+<input class="form-input w-full rounded-lg border border-border-light bg-background-light px-4 py-3 text-sm text-text-main-light placeholder:text-text-secondary-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-border-dark dark:bg-background-dark dark:text-text-main-dark dark:placeholder:text-text-secondary-dark" id="title" placeholder="e.g. Q3 Compliance Audit Strategy" type="text"/>
+</div>
+<!-- Description Input -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-text-main-light dark:text-text-main-dark" for="description">
+                            Description
+                        </label>
+<input class="form-input w-full rounded-lg border border-border-light bg-background-light px-4 py-3 text-sm text-text-main-light placeholder:text-text-secondary-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-border-dark dark:bg-background-dark dark:text-text-main-dark dark:placeholder:text-text-secondary-dark" id="description" placeholder="Brief description of the decision goal" type="text"/>
+</div>
+<!-- Context / Background Textarea -->
+<div class="flex flex-col gap-2">
+<label class="flex items-center justify-between text-sm font-medium text-text-main-light dark:text-text-main-dark" for="context">
+<span>Context / Background</span>
+<span class="text-xs font-normal text-text-secondary-light dark:text-text-secondary-dark">Max 2000 chars</span>
+</label>
+<div class="relative group">
+<textarea class="form-textarea w-full resize-none rounded-lg border border-border-light bg-background-light px-4 py-3 text-sm text-text-main-light placeholder:text-text-secondary-light focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-border-dark dark:bg-background-dark dark:text-text-main-dark dark:placeholder:text-text-secondary-dark" id="context" placeholder="Paste relevant emails, policy excerpts, or meeting notes here for AI analysis..." rows="5"></textarea>
+<!-- AI Indicator Inside Field (Optional visual cue) -->
+<div class="absolute bottom-3 right-3 text-primary opacity-50 pointer-events-none">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+</div>
+</div>
+</div>
+<!-- AI Note Banner -->
+<div class="flex items-start gap-3 rounded-lg bg-primary/5 p-4 border border-primary/10">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">smart_toy</span>
+<div class="flex flex-col gap-1">
+<p class="text-sm font-medium text-text-main-light dark:text-text-main-dark">AI Reasoning Engine</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark leading-relaxed">
+                                Anchora AI will generate a reasoning summary and identify potential compliance risks based on the context provided above.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="flex items-center justify-end gap-3 px-6 py-5 bg-background-light/50 dark:bg-background-dark/50 border-t border-border-light dark:border-border-dark">
+<button class="px-5 py-2.5 rounded-lg text-sm font-medium text-text-main-light hover:bg-slate-200 dark:text-text-main-dark dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    Cancel
+                </button>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-primary-hover text-white text-sm font-medium shadow-md shadow-primary/20 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-surface-dark">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Create Decision
+                </button>
+</div>
+</div>
+</div>
+</body></html>
