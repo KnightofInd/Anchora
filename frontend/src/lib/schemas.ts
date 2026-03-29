@@ -20,6 +20,7 @@ export const decisionSchema = z.object({
   id: z.string().uuid(),
   title: z.string(),
   description: z.string().nullable(),
+  context: z.string().nullable().optional(),
   reasoning_summary: z.string().nullable(),
   confidence_score: z.number().nullable(),
   risk_score: z.number().nullable(),

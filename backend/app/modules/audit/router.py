@@ -14,6 +14,10 @@ async def list_audit_logs(
     entity_type: str | None = Query(None),
     entity_id:   str | None = Query(None),
     performed_by: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    sort_by: str = Query("timestamp", pattern="^(timestamp|entity_type|action)$"),
+    sort_order: str = Query("desc", pattern="^(asc|desc)$"),
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_role("admin", "auditor")),
 ):
@@ -22,7 +26,15 @@ async def list_audit_logs(
     Supports filtering by entity_type, entity_id, performed_by.
     Only accessible by admin and auditor roles.
     """
-    return await AuditService(db).list_logs(entity_type, entity_id, performed_by)
+    return await AuditService(db).list_logs(
+        entity_type=entity_type,
+        entity_id=entity_id,
+        performed_by=performed_by,
+        limit=limit,
+        offset=offset,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
 
 
 @router.get("/trace/{decision_id}", response_model=list[AuditLogRead])

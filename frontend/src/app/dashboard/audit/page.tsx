@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { auditApi } from "@/lib/api";
+import { auditApi, getApiErrorMessage } from "@/lib/api";
+import { EmptyState, ErrorState, LoadingState } from "@/app/dashboard/_components/query-states";
 
 interface AuditLog {
   id: string;
@@ -36,14 +37,22 @@ function performerInitials(name: string) {
 }
 
 export default function AuditPage() {
+  const PAGE_SIZE = 20;
   const [entityFilter, setEntityFilter] = useState("");
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["audit", entityFilter],
-    queryFn: () => auditApi.list(entityFilter ? { entity_type: entityFilter } : {}),
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["audit", entityFilter, page],
+    queryFn: () =>
+      auditApi.list({
+        ...(entityFilter ? { entity_type: entityFilter } : {}),
+        limit: PAGE_SIZE,
+        offset: (page - 1) * PAGE_SIZE,
+      }),
   });
 
   const logs: AuditLog[] = data?.data ?? [];
+  const hasNextPage = logs.length === PAGE_SIZE;
 
   return (
     <div className="p-6 space-y-5">
@@ -77,7 +86,10 @@ export default function AuditPage() {
         {FILTER_CHIPS.map(({ key, label }) => (
           <button
             key={key}
-            onClick={() => setEntityFilter(key)}
+            onClick={() => {
+              setEntityFilter(key);
+              setPage(1);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
               entityFilter === key
                 ? "bg-[#1e3fae] text-white shadow-sm"
@@ -97,11 +109,26 @@ export default function AuditPage() {
       {/* Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-slate-400 text-sm">Loading audit events…</div>
+          <div className="p-4">
+            <LoadingState label="Loading audit events..." />
+          </div>
+        ) : isError ? (
+          <div className="p-4">
+            <ErrorState
+              title="Could not load audit events"
+              message={getApiErrorMessage(error, "Failed to load audit events.")}
+              onRetry={() => {
+                void refetch();
+              }}
+            />
+          </div>
         ) : !logs.length ? (
-          <div className="p-8 text-center">
-            <span className="material-symbols-outlined text-3xl text-slate-300">description</span>
-            <p className="text-slate-400 text-sm mt-2">No audit events found.</p>
+          <div className="p-4">
+            <EmptyState
+              icon="description"
+              title="No audit events"
+              description="No entries match the current filter yet."
+            />
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -163,13 +190,21 @@ export default function AuditPage() {
         {/* Pagination */}
         {logs.length > 0 && (
           <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
-            <p className="text-xs text-slate-400">Showing {logs.length} results</p>
+            <p className="text-xs text-slate-400">Showing page {page} ({logs.length} result{logs.length !== 1 ? "s" : ""})</p>
             <div className="flex items-center gap-1">
-              <button className="p-1 rounded hover:bg-slate-100 text-slate-400 disabled:opacity-30" disabled>
+              <button
+                className="p-1 rounded hover:bg-slate-100 text-slate-400 disabled:opacity-30"
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              >
                 <span className="material-symbols-outlined text-sm">chevron_left</span>
               </button>
-              <span className="px-2 py-0.5 rounded bg-[#1e3fae] text-white text-xs font-semibold">1</span>
-              <button className="p-1 rounded hover:bg-slate-100 text-slate-400 disabled:opacity-30" disabled>
+              <span className="px-2 py-0.5 rounded bg-[#1e3fae] text-white text-xs font-semibold">{page}</span>
+              <button
+                className="p-1 rounded hover:bg-slate-100 text-slate-400 disabled:opacity-30"
+                disabled={!hasNextPage}
+                onClick={() => setPage((prev) => prev + 1)}
+              >
                 <span className="material-symbols-outlined text-sm">chevron_right</span>
               </button>
             </div>

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_role
 from app.schemas.compliance_schema import ComplianceReportRead
 from app.modules.compliance.service import ComplianceService
 
@@ -13,7 +13,7 @@ router = APIRouter()
 async def get_compliance_report(
     decision_id: str,
     db: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_role("admin", "analyst", "auditor")),
 ):
     """
     Returns full compliance report for a decision:

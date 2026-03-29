@@ -15,6 +15,7 @@ from app.config.settings import settings
 if TYPE_CHECKING:
     from app.models.user import User
     from app.models.decision import DecisionReference
+    from app.models.knowledge_chunk import KnowledgeChunk
 
 
 class Document(Base):
@@ -46,6 +47,14 @@ class Document(Base):
     # Reverse relationship to decision references
     decision_references: Mapped[list["DecisionReference"]] = relationship(
         "DecisionReference", back_populates="document"
+    )
+
+    # Passage-level chunks used by semantic retrieval
+    chunks: Mapped[list["KnowledgeChunk"]] = relationship(
+        "KnowledgeChunk",
+        back_populates="document",
+        cascade="all, delete-orphan",
+        order_by="KnowledgeChunk.chunk_index",
     )
 
     def __repr__(self) -> str:

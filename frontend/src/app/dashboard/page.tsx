@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { decisionsApi, workflowApi, auditApi } from "@/lib/api";
+import { decisionsApi, workflowApi, auditApi, getApiErrorMessage } from "@/lib/api";
+import { EmptyState, ErrorState, LoadingState } from "@/app/dashboard/_components/query-states";
 
 /* ── helpers ── */
 function riskLabel(score: number | null) {
   if (score == null) return { label: "—", color: "bg-slate-300" };
-  if (score < 0.35) return { label: "Low", color: "bg-green-500" };
-  if (score < 0.65) return { label: "Med", color: "bg-amber-400" };
+  if (score < 5) return { label: "Low", color: "bg-green-500" };
+  if (score < 8) return { label: "Med", color: "bg-amber-400" };
   return { label: "High", color: "bg-red-500" };
 }
 
@@ -38,9 +39,9 @@ const ENTITY_ICONS: Record<string, { icon: string; bg: string; fg: string }> = {
 };
 
 export default function DashboardPage() {
-  const decisions = useQuery({ queryKey: ["decisions"], queryFn: () => decisionsApi.list() });
-  const workflows = useQuery({ queryKey: ["workflows"], queryFn: () => workflowApi.list() });
-  const auditLogs = useQuery({ queryKey: ["audit"],     queryFn: () => auditApi.list() });
+  const decisions = useQuery({ queryKey: ["decisions", "overview"], queryFn: () => decisionsApi.list({ limit: 20 }) });
+  const workflows = useQuery({ queryKey: ["workflows", "overview"], queryFn: () => workflowApi.list({ limit: 20 }) });
+  const auditLogs = useQuery({ queryKey: ["audit", "overview"],     queryFn: () => auditApi.list({ limit: 20 }) });
 
   const decList = decisions.data?.data ?? [];
   const wfList  = workflows.data?.data ?? [];
@@ -103,9 +104,27 @@ export default function DashboardPage() {
             <Link href="/dashboard/decisions" className="text-xs font-medium text-[#1e3fae] hover:underline">View all</Link>
           </div>
           {decisions.isLoading ? (
-            <div className="p-6 text-center text-slate-400 text-sm">Loading…</div>
+            <div className="p-4">
+              <LoadingState label="Loading recent decisions..." />
+            </div>
+          ) : decisions.isError ? (
+            <div className="p-4">
+              <ErrorState
+                title="Could not load decisions"
+                message={getApiErrorMessage(decisions.error, "Failed to load decisions.")}
+                onRetry={() => {
+                  void decisions.refetch();
+                }}
+              />
+            </div>
           ) : !decList.length ? (
-            <div className="p-6 text-center text-slate-400 text-sm">No decisions yet.</div>
+            <div className="p-4">
+              <EmptyState
+                icon="balance"
+                title="No decisions yet"
+                description="Create one from the New Decision button to start." 
+              />
+            </div>
           ) : (
             <table className="w-full text-sm">
               <thead className="border-b border-slate-100 bg-slate-50 text-left">
@@ -172,9 +191,27 @@ export default function DashboardPage() {
           </div>
           <div className="divide-y divide-slate-50 overflow-y-auto max-h-[420px]">
             {auditLogs.isLoading ? (
-              <div className="p-5 text-center text-slate-400 text-sm">Loading…</div>
+              <div className="p-4">
+                <LoadingState label="Loading recent activity..." />
+              </div>
+            ) : auditLogs.isError ? (
+              <div className="p-4">
+                <ErrorState
+                  title="Could not load activity"
+                  message={getApiErrorMessage(auditLogs.error, "Failed to load activity.")}
+                  onRetry={() => {
+                    void auditLogs.refetch();
+                  }}
+                />
+              </div>
             ) : !auList.length ? (
-              <div className="p-5 text-center text-slate-400 text-sm">No activity yet.</div>
+              <div className="p-4">
+                <EmptyState
+                  icon="description"
+                  title="No activity yet"
+                  description="System events will appear here as activity happens."
+                />
+              </div>
             ) : (
               auList.slice(0, 10).map((log: {
                 id: string; entity_type: string; action: string;
@@ -182,8 +219,12 @@ export default function DashboardPage() {
               }) => {
                 const meta = ENTITY_ICONS[log.entity_type] ?? { icon: "info", bg: "bg-slate-100", fg: "text-slate-600" };
                 const when = new Date(log.timestamp);
-                const diff = Math.round((Date.now() - when.getTime()) / 60000);
-                const relTime = diff < 1 ? "just now" : diff < 60 ? `${diff}m ago` : diff < 1440 ? `${Math.round(diff / 60)}h ago` : `${Math.round(diff / 1440)}d ago`;
+                const stamp = when.toLocaleString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
                 return (
                   <div key={log.id} className="flex items-start gap-3 px-5 py-3.5 hover:bg-slate-50">
                     <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${meta.bg}`}>
@@ -193,7 +234,7 @@ export default function DashboardPage() {
                       <p className="text-xs font-semibold text-slate-800 truncate">{log.action.replace(/_/g, " ")}</p>
                       <p className="text-[11px] text-slate-400 truncate mt-0.5">{log.performed_by}</p>
                     </div>
-                    <span className="text-[10px] text-slate-400 whitespace-nowrap mt-0.5 shrink-0">{relTime}</span>
+                    <span className="text-[10px] text-slate-400 whitespace-nowrap mt-0.5 shrink-0">{stamp}</span>
                   </div>
                 );
               })

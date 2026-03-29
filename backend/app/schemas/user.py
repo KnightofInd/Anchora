@@ -18,6 +18,7 @@ class UserRead(UserBase):
     id: uuid.UUID
     is_active: bool
     role_id: uuid.UUID
+    role_name: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -35,4 +36,4 @@ class LoginRequest(BaseModel):
 
 
 class RefreshRequest(BaseModel):
-    refresh_token: str
+    refresh_token: str | None = None

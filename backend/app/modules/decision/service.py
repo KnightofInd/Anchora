@@ -3,7 +3,7 @@ Decision Service
 ----------------
 Core brain of Anchora. Decision creation flow:
 
-1. Semantic search → retrieve relevant documents (graceful fallback to recent docs)
+1. Chunk-first hybrid retrieval → aggregate relevant documents
 2. Gemini AI → reasoning_summary, assumptions, confidence_score, risk_score
 3. Policy engine pre-check against all active rules
 4. Store Decision object + DecisionReferences (full traceability)
@@ -20,13 +20,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models.decision import Decision, DecisionReference
-from app.schemas.decision import DecisionCreate
+from app.models.decision import Decision, DecisionReference, DecisionMeetingNote
+from app.schemas.decision import DecisionCreate, DecisionMeetingNoteCreate, DecisionMeetingNoteUpdate
+from app.core.ai_quality import GroundingEvaluator
 from app.core.audit_engine.logger import audit
 from app.core.policy_engine.evaluator import LocalPolicyEvaluator
 from app.services.ai_service import AIService
-from app.services.embedding import EmbeddingService
 from app.models.document import Document
+from app.modules.knowledge.service import KnowledgeService
 from app.config.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ class DecisionService:
         self.db = db
         self.ai = AIService()
         self.policy_engine = LocalPolicyEvaluator(db)
-        self.embedding_svc = EmbeddingService()
+        self.knowledge = KnowledgeService(db)
 
     async def create(
         self,
@@ -45,22 +46,20 @@ class DecisionService:
         user_id: str,
         user_role: str = "analyst",
     ) -> Decision:
-        # ── Step 1: Retrieve relevant documents via semantic search ───────────
+        # ── Step 1: Retrieve relevant documents via chunk-first hybrid search ─
         relevant_docs: list[Document] = []
+        retrieval_mode = "semantic_hybrid_chunks"
         try:
-            query_embedding = await self.embedding_svc.generate(payload.context)
-            docs_result = await self.db.execute(
-                select(Document)
-                .where(Document.embedding.is_not(None))
-                .order_by(Document.embedding.cosine_distance(query_embedding))
-                .limit(5)
+            relevant_docs, retrieval_mode = await self.knowledge.retrieve_documents(
+                payload.context,
+                limit=5,
             )
-            relevant_docs = list(docs_result.scalars().all())
         except Exception as exc:
-            logger.warning("Semantic doc retrieval failed, falling back to recent docs: %s", exc)
+            logger.warning("Chunk retrieval failed, falling back to recent docs: %s", exc)
 
         # Fallback: most recent 3 docs if semantic search found nothing
         if not relevant_docs:
+            retrieval_mode = "fallback_recent"
             fallback = await self.db.execute(
                 select(Document).order_by(Document.created_at.desc()).limit(3)
             )
@@ -75,6 +74,44 @@ class DecisionService:
             context=payload.context,
             document_summaries=doc_summaries,
         )
+
+        if ai_result.get("ai_unavailable"):
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "message": "Decision generation unavailable: AI provider call failed.",
+                    "provider": "gemini",
+                    "reason": ai_result.get("ai_error") or "unknown",
+                    "attempted_models": ai_result.get("attempted_models") or [],
+                    "attempted_model": ai_result.get("model_used"),
+                },
+            )
+
+        used_model_name = ai_result.get("model_used") or settings.GEMINI_MODEL
+
+        # ── Step 2b: Grounding quality gate ──────────────────────────────────
+        ai_citations = ai_result.get("citations", [])
+        grounding = GroundingEvaluator.evaluate(
+            reasoning_summary=ai_result.get("reasoning_summary", ""),
+            context=payload.context,
+            retrieved_docs=doc_summaries,
+            citations=ai_citations if isinstance(ai_citations, list) else [],
+            min_score=settings.AI_GROUNDING_MIN_SCORE,
+            require_at_least_one_citation=settings.AI_GROUNDING_REQUIRE_CITATION,
+        )
+        if settings.AI_GROUNDING_GATE_ENABLED and not grounding.passed:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "message": "Decision blocked by grounding quality gate.",
+                    "grounding": {
+                        "score": grounding.score,
+                        "citation_coverage": grounding.citation_coverage,
+                        "lexical_overlap": grounding.lexical_overlap,
+                        "detail": grounding.detail,
+                    },
+                },
+            )
 
         # ── Step 3: Policy engine pre-check ───────────────────────────────────
         policy_result = await self.policy_engine.evaluate({
@@ -99,13 +136,38 @@ class DecisionService:
         decision = Decision(
             title=payload.title,
             description=payload.description,
+            context=payload.context,
             reasoning_summary=ai_result["reasoning_summary"],
             confidence_score=ai_result["confidence_score"],
             risk_score=ai_result["risk_score"],
             assumptions=ai_result["assumptions"],
-            ai_model_name=settings.GEMINI_MODEL,
+            ai_model_name=used_model_name,
             ai_model_version=settings.GEMINI_MODEL_VERSION,
             ai_prompt_version=settings.PROMPT_VERSION,
+            # Policy version pinning: freeze the evaluated policy snapshot so future
+            # policy edits cannot retroactively change this decision's compliance record.
+            policy_snapshot=policy_result.to_dict(),
+            quality_snapshot={
+                "grounding": {
+                    "score": grounding.score,
+                    "citation_coverage": grounding.citation_coverage,
+                    "lexical_overlap": grounding.lexical_overlap,
+                    "passed": grounding.passed,
+                    "detail": grounding.detail,
+                    "citations": ai_citations if isinstance(ai_citations, list) else [],
+                },
+                "retrieval": {
+                    "mode": retrieval_mode,
+                    "document_count": len(relevant_docs),
+                    "document_titles": [d.title for d in relevant_docs],
+                },
+                "model": {
+                    "name": used_model_name,
+                    "version": settings.GEMINI_MODEL_VERSION,
+                    "prompt_version": settings.PROMPT_VERSION,
+                    "attempted_models": ai_result.get("attempted_models") or [],
+                },
+            },
             created_by=user_id,
         )
         self.db.add(decision)
@@ -142,6 +204,13 @@ class DecisionService:
                 "requires_escalation": policy_result.requires_escalation,
                 "policy_violations": policy_result.violations,
                 "document_ids": [str(d.id) for d in relevant_docs],
+                "grounding_score": grounding.score,
+                "grounding_passed": grounding.passed,
+                "grounding_detail": grounding.detail,
+                "grounding_citations": ai_citations if isinstance(ai_citations, list) else [],
+                "retrieval_mode": retrieval_mode,
+                "prompt_version": settings.PROMPT_VERSION,
+                "model_version": settings.GEMINI_MODEL_VERSION,
             },
         )
 
@@ -150,7 +219,7 @@ class DecisionService:
         # Reload with references for the response
         result = await self.db.execute(
             select(Decision)
-            .options(selectinload(Decision.references))
+            .options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
             .where(Decision.id == decision.id)
         )
         return result.scalar_one()
@@ -200,7 +269,7 @@ class DecisionService:
         await self.db.commit()
         result = await self.db.execute(
             select(Decision)
-            .options(selectinload(Decision.references))
+            .options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
             .where(Decision.id == decision.id)
         )
         return result.scalar_one()
@@ -208,7 +277,7 @@ class DecisionService:
     async def get_by_id(self, decision_id: str) -> Decision:
         result = await self.db.execute(
             select(Decision)
-            .options(selectinload(Decision.references))
+            .options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
             .where(Decision.id == decision_id)
         )
         decision = result.scalar_one_or_none()
@@ -222,7 +291,128 @@ class DecisionService:
     async def list_all(self) -> list[Decision]:
         result = await self.db.execute(
             select(Decision)
-            .options(selectinload(Decision.references))
+            .options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
             .order_by(Decision.created_at.desc())
         )
         return list(result.scalars().all())
+
+    async def list_paged(
+        self,
+        *,
+        limit: int,
+        offset: int,
+        sort_by: str,
+        sort_order: str,
+        status_filter: str | None = None,
+    ) -> list[Decision]:
+        sort_columns = {
+            "created_at": Decision.created_at,
+            "title": Decision.title,
+            "risk_score": Decision.risk_score,
+            "confidence_score": Decision.confidence_score,
+            "status": Decision.status,
+        }
+        column = sort_columns.get(sort_by, Decision.created_at)
+        order_expr = column.asc() if sort_order == "asc" else column.desc()
+
+        query = select(Decision).options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
+        if status_filter:
+            query = query.where(Decision.status == status_filter)
+
+        result = await self.db.execute(
+            query
+            .order_by(order_expr)
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(result.scalars().all())
+
+    async def list_meeting_notes(self, decision_id: str) -> list[DecisionMeetingNote]:
+        await self.get_by_id(decision_id)
+        result = await self.db.execute(
+            select(DecisionMeetingNote)
+            .where(DecisionMeetingNote.decision_id == decision_id)
+            .order_by(DecisionMeetingNote.created_at.desc())
+        )
+        return list(result.scalars().all())
+
+    async def add_meeting_note(
+        self,
+        decision_id: str,
+        payload: DecisionMeetingNoteCreate,
+        user_id: str,
+    ) -> DecisionMeetingNote:
+        await self.get_by_id(decision_id)
+        action_items = [item.strip() for item in payload.action_items if item and item.strip()]
+        note = DecisionMeetingNote(
+            decision_id=decision_id,
+            meeting_title=payload.meeting_title,
+            transcript_text=payload.transcript_text,
+            execution_guidance=payload.execution_guidance,
+            action_items=action_items,
+            created_by=user_id,
+        )
+        self.db.add(note)
+        await self.db.flush()
+
+        await audit.log(
+            self.db,
+            entity_type="decision",
+            entity_id=decision_id,
+            action="meeting_note_added",
+            performed_by=user_id,
+            metadata={
+                "meeting_note_id": str(note.id),
+                "has_guidance": bool(payload.execution_guidance and payload.execution_guidance.strip()),
+                "action_items_count": len(action_items),
+            },
+        )
+        await self.db.commit()
+        await self.db.refresh(note)
+        return note
+
+    async def update_meeting_note(
+        self,
+        decision_id: str,
+        note_id: str,
+        payload: DecisionMeetingNoteUpdate,
+        user_id: str,
+    ) -> DecisionMeetingNote:
+        await self.get_by_id(decision_id)
+        result = await self.db.execute(
+            select(DecisionMeetingNote)
+            .where(
+                DecisionMeetingNote.id == note_id,
+                DecisionMeetingNote.decision_id == decision_id,
+            )
+        )
+        note = result.scalar_one_or_none()
+        if note is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meeting note not found.")
+
+        update_data = payload.model_dump(exclude_unset=True)
+        if "action_items" in update_data and update_data["action_items"] is not None:
+            update_data["action_items"] = [
+                item.strip()
+                for item in update_data["action_items"]
+                if isinstance(item, str) and item.strip()
+            ]
+
+        for field, value in update_data.items():
+            setattr(note, field, value)
+
+        await self.db.flush()
+        await audit.log(
+            self.db,
+            entity_type="decision",
+            entity_id=decision_id,
+            action="meeting_note_updated",
+            performed_by=user_id,
+            metadata={
+                "meeting_note_id": str(note.id),
+                "updated_fields": sorted(update_data.keys()),
+            },
+        )
+        await self.db.commit()
+        await self.db.refresh(note)
+        return note

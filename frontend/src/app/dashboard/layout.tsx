@@ -1,11 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { workflowApi, authApi } from "@/lib/api";
+import { workflowApi, authApi, SESSION_EXPIRED_EVENT, clearAuthSession } from "@/lib/api";
 
-const NAV = [
+const BASE_NAV = [
   { href: "/dashboard",            label: "Overview",    icon: "dashboard" },
   { href: "/dashboard/decisions",  label: "Decisions",   icon: "balance" },
   { href: "/dashboard/workflows",  label: "Workflows",   icon: "account_tree" },
@@ -16,6 +17,18 @@ const NAV = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router   = useRouter();
+  const [sessionNotice, setSessionNotice] = useState<string>("");
+
+  const { data: meData } = useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => authApi.me(),
+    staleTime: 60_000,
+  });
+  const currentUser = meData?.data as { full_name?: string; email?: string; role_name?: string } | undefined;
+  const roleName = (currentUser?.role_name ?? "viewer").toLowerCase();
+  const nav = roleName === "admin"
+    ? [...BASE_NAV, { href: "/dashboard/users", label: "User Management", icon: "group" }]
+    : BASE_NAV;
 
   // Pending workflow count for badge
   const { data: wfData } = useQuery({
@@ -26,9 +39,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pendingCount: number =
     (wfData?.data ?? []).filter((w: { status: string }) => w.status === "pending").length;
 
+  useEffect(() => {
+    function handleSessionExpired() {
+      setSessionNotice("Your session expired. Redirecting to login...");
+    }
+
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+    return () => {
+      window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+    };
+  }, []);
+
   async function logout() {
     try { await authApi.logout(); } catch { /* ignore — still clear cookie */ }
-    document.cookie = "access_token=; path=/; max-age=0";
+    clearAuthSession();
     router.push("/login");
   }
 
@@ -49,7 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {NAV.map(({ href, label, icon }) => {
+          {nav.map(({ href, label, icon }) => {
             const active =
               href === "/dashboard"
                 ? pathname === "/dashboard"
@@ -82,11 +106,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="px-3 pb-4 space-y-1 border-t border-slate-100 pt-3 shrink-0">
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="h-8 w-8 rounded-full bg-[#1e3fae] flex items-center justify-center text-white text-xs font-bold shrink-0">
-              AC
+              {(currentUser?.full_name ?? "User")
+                .split(" ")
+                .map((part) => part[0]?.toUpperCase() ?? "")
+                .slice(0, 2)
+                .join("")}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-800 truncate">Alex Chen</p>
-              <p className="text-xs text-slate-400 truncate">Admin</p>
+              <p className="text-sm font-semibold text-slate-800 truncate">{currentUser?.full_name ?? "Anchora User"}</p>
+              <p className="text-xs text-slate-400 truncate">{currentUser?.role_name ?? "Viewer"}</p>
             </div>
           </div>
           <button
@@ -125,7 +153,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto">
+          {sessionNotice && (
+            <div className="mx-6 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              {sessionNotice}
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

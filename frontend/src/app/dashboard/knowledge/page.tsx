@@ -2,7 +2,9 @@
 
 import { useState, useRef, FormEvent, DragEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { documentsApi } from "@/lib/api";
+import { documentsApi, getApiErrorMessage } from "@/lib/api";
+import { EmptyState, ErrorState, LoadingState } from "@/app/dashboard/_components/query-states";
+import { useToast } from "@/app/_components/toast";
 
 interface Document {
   id: string;
@@ -32,8 +34,11 @@ function fileIconFor(filename: string) {
 }
 
 export default function KnowledgePage() {
+  const PAGE_SIZE = 12;
   const fileRef    = useRef<HTMLInputElement>(null);
   const qc         = useQueryClient();
+  const { showToast } = useToast();
+  const [docsPage, setDocsPage] = useState(1);
   const [dragging, setDragging]     = useState(false);
   const [uploadMsg, setUploadMsg]   = useState("");
   const [query, setQuery]           = useState("");
@@ -42,11 +47,22 @@ export default function KnowledgePage() {
   const [searching, setSearching]   = useState(false);
   const [searchError, setSearchError] = useState("");
 
-  const { data: docsData, isLoading: docsLoading } = useQuery({
-    queryKey: ["documents"],
-    queryFn: () => documentsApi.list(),
+  const {
+    data: docsData,
+    isLoading: docsLoading,
+    isError: docsError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["documents", docsPage],
+    queryFn: () =>
+      documentsApi.list({
+        limit: PAGE_SIZE,
+        offset: (docsPage - 1) * PAGE_SIZE,
+      }),
   });
   const allDocs: Document[] = docsData?.data ?? [];
+  const hasNextDocsPage = allDocs.length === PAGE_SIZE;
 
   const uploadMutation = useMutation({
     mutationFn: (file: File) => {
@@ -58,12 +74,16 @@ export default function KnowledgePage() {
       setUploadMsg(`Uploaded: ${res.data?.filename ?? "document"}`);
       if (fileRef.current) fileRef.current.value = "";
       qc.invalidateQueries({ queryKey: ["documents"] });
+      showToast({
+        variant: "success",
+        title: "Document uploaded",
+        message: res.data?.filename ?? "Knowledge file indexed successfully.",
+      });
     },
     onError: (err: unknown) => {
-      const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-        (err as Error)?.message ?? "Upload failed.";
-      setUploadMsg(`Error: ${msg}`);
+      const message = getApiErrorMessage(err, "Upload failed.");
+      setUploadMsg(`Error: ${message}`);
+      showToast({ variant: "error", title: "Upload failed", message });
     },
   });
 
@@ -93,9 +113,9 @@ export default function KnowledgePage() {
       setResults(res.data ?? []);
       setSearched(true);
     } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Search failed.";
-      setSearchError(typeof msg === "string" ? msg : "Search failed.");
+      const message = getApiErrorMessage(err, "Search failed.");
+      setSearchError(message);
+      showToast({ variant: "error", title: "Search failed", message });
     } finally {
       setSearching(false);
     }
@@ -181,12 +201,21 @@ export default function KnowledgePage() {
           <span className="text-xs text-slate-400">{allDocs.length} document{allDocs.length !== 1 ? "s" : ""}</span>
         </div>
         {docsLoading ? (
-          <div className="py-6 text-center text-sm text-slate-400">Loading…</div>
+          <LoadingState label="Loading documents..." />
+        ) : docsError ? (
+          <ErrorState
+            title="Could not load documents"
+            message={getApiErrorMessage(error, "Failed to load documents.")}
+            onRetry={() => {
+              void refetch();
+            }}
+          />
         ) : allDocs.length === 0 ? (
-          <div className="py-8 text-center">
-            <span className="material-symbols-outlined text-3xl text-slate-300">library_books</span>
-            <p className="text-sm text-slate-400 mt-2">No documents uploaded yet.</p>
-          </div>
+          <EmptyState
+            icon="library_books"
+            title="No documents uploaded"
+            description="Upload your first document to build the searchable repository."
+          />
         ) : (
           <div className="space-y-2">
             {allDocs.map((doc) => {
@@ -209,6 +238,26 @@ export default function KnowledgePage() {
                 </div>
               );
             })}
+            <div className="pt-2 flex items-center justify-between">
+              <p className="text-xs text-slate-400">Page {docsPage}</p>
+              <div className="flex items-center gap-1">
+                <button
+                  className="p-1 rounded hover:bg-slate-100 text-slate-400 disabled:opacity-30"
+                  disabled={docsPage <= 1}
+                  onClick={() => setDocsPage((prev) => Math.max(1, prev - 1))}
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_left</span>
+                </button>
+                <span className="px-2 py-0.5 rounded bg-[#1e3fae] text-white text-xs font-semibold">{docsPage}</span>
+                <button
+                  className="p-1 rounded hover:bg-slate-100 text-slate-400 disabled:opacity-30"
+                  disabled={!hasNextDocsPage}
+                  onClick={() => setDocsPage((prev) => prev + 1)}
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_right</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -288,7 +337,7 @@ export default function KnowledgePage() {
         {searched && !searching && !searchError && results.length === 0 && (
           <div className="mt-6 text-center">
             <span className="material-symbols-outlined text-3xl text-slate-300">search_off</span>
-            <p className="text-sm text-slate-400 mt-2">No results found for "{query}"</p>
+            <p className="text-sm text-slate-400 mt-2">No results found for &quot;{query}&quot;</p>
           </div>
         )}
       </div>

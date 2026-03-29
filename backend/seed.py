@@ -77,6 +77,33 @@ DEFAULT_ROLES = [
     },
 ]
 
+DEFAULT_USERS_BY_ROLE = [
+    {
+        "email": "admin@anchora.dev",
+        "full_name": "Anchora Admin",
+        "password": "Admin@1234",
+        "role": "admin",
+    },
+    {
+        "email": "analyst@anchora.dev",
+        "full_name": "Anchora Analyst",
+        "password": "Analyst@1234",
+        "role": "analyst",
+    },
+    {
+        "email": "auditor@anchora.dev",
+        "full_name": "Anchora Auditor",
+        "password": "Auditor@1234",
+        "role": "auditor",
+    },
+    {
+        "email": "viewer@anchora.dev",
+        "full_name": "Anchora Viewer",
+        "password": "Viewer@1234",
+        "role": "viewer",
+    },
+]
+
 
 async def seed():
     async with Session() as db:
@@ -101,21 +128,23 @@ async def seed():
             result = await db.execute(select(Role).where(Role.name == role_data["name"]))
             role_map[role_data["name"]] = result.scalar_one()
 
-        # ── Seed admin user ──────────────────────────────────────────────────
-        admin_email = "admin@anchora.dev"
-        existing_user = await db.execute(select(User).where(User.email == admin_email))
-        if not existing_user.scalar_one_or_none():
-            admin = User(
-                email=admin_email,
-                full_name="Anchora Admin",
-                password_hash=hash_password("Admin@1234"),
-                role_id=role_map["admin"].id,
-            )
-            db.add(admin)
-            await db.commit()
-            print(f"  [+] Admin user created: {admin_email} / Admin@1234")
-        else:
-            print(f"  [=] Admin user exists: {admin_email}")
+        # ── Seed one default user per role ───────────────────────────────────
+        for user_data in DEFAULT_USERS_BY_ROLE:
+            existing_user = await db.execute(select(User).where(User.email == user_data["email"]))
+            if not existing_user.scalar_one_or_none():
+                user = User(
+                    email=user_data["email"],
+                    full_name=user_data["full_name"],
+                    password_hash=hash_password(user_data["password"]),
+                    role_id=role_map[user_data["role"]].id,
+                )
+                db.add(user)
+                await db.flush()
+                print(f"  [+] User created: {user_data['email']} / {user_data['password']}")
+            else:
+                print(f"  [=] User exists:  {user_data['email']}")
+
+        await db.commit()
 
         # ── Seed policies from default_rules.json ───────────────────────────
         with open(RULES_PATH, "r") as f:

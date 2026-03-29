@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -6,18 +6,32 @@ from sqlalchemy import select
 from app.core.database import get_db
 from app.core.security import decode_token
 
-bearer_scheme = HTTPBearer()
+from app.config.settings import settings
+
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Validates JWT and returns the current user dict.
     Also checks the token JTI against the revoked_tokens blocklist.
     """
-    token = credentials.credentials
+    token = None
+    if credentials is not None:
+        token = credentials.credentials
+    elif settings.AUTH_COOKIE_ENABLED:
+        token = request.cookies.get(settings.ACCESS_COOKIE_NAME)
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication token",
+        )
+
     payload = decode_token(token)
 
     if not payload or payload.get("type") != "access":

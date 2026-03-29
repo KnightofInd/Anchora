@@ -39,3 +39,7 @@ class User(Base):
 
     def __repr__(self) -> str:
         return f"<User {self.email}>"
+
+    @property
+    def role_name(self) -> str | None:
+        return self.role.name if self.role else None

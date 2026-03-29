@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/lib/api";
 
@@ -11,6 +11,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [redirectTarget, setRedirectTarget] = useState("/dashboard");
+  const [sessionReason, setSessionReason] = useState("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    setRedirectTarget(params.get("redirect") || "/dashboard");
+    setSessionReason(params.get("reason") || "");
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -20,7 +31,7 @@ export default function LoginPage() {
       const res = await authApi.login(email, password);
       const token: string = res.data.access_token;
       document.cookie = `access_token=${token}; path=/; max-age=${60 * 60 * 8}; SameSite=Lax`;
-      router.push("/dashboard");
+      router.push(redirectTarget);
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
@@ -83,6 +94,16 @@ export default function LoginPage() {
             <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Sign in to Anchora</h2>
             <p className="text-slate-500 text-sm">Welcome back. Enter your credentials to access the secure portal.</p>
           </div>
+
+          {sessionReason === "session-expired" && !error && (
+            <div
+              role="status"
+              className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700"
+            >
+              <span className="material-symbols-outlined text-base shrink-0">schedule</span>
+              Your session expired. Sign in again to continue.
+            </div>
+          )}
 
           {error && (
             <div role="alert"

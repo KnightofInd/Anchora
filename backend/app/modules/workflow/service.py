@@ -42,12 +42,65 @@ class WorkflowService:
         )
         return list(result.scalars().all())
 
+    async def list_paged(
+        self,
+        *,
+        limit: int,
+        offset: int,
+        sort_by: str,
+        sort_order: str,
+        status_filter: str | None = None,
+    ) -> list[Workflow]:
+        sort_columns = {
+            "triggered_at": Workflow.triggered_at,
+            "completed_at": Workflow.completed_at,
+            "status": Workflow.status,
+        }
+        column = sort_columns.get(sort_by, Workflow.triggered_at)
+        order_expr = column.asc() if sort_order == "asc" else column.desc()
+
+        query = select(Workflow).options(selectinload(Workflow.tasks))
+        if status_filter:
+            query = query.where(Workflow.status == status_filter)
+
+        result = await self.db.execute(
+            query
+            .order_by(order_expr)
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(result.scalars().all())
+
     async def start(self, payload: WorkflowStartRequest, user_id: str) -> Workflow:
         # ── Validate decision exists ──────────────────────────────────────────
         result = await self.db.execute(select(Decision).where(Decision.id == payload.decision_id))
         decision = result.scalar_one_or_none()
         if not decision:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Decision not found.")
+
+        # ── Guard: only DRAFT decisions may enter a workflow ─────────────────
+        if decision.status != DecisionStatus.DRAFT:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Cannot start a workflow for a '{decision.status}' decision. Only DRAFT decisions are eligible.",
+            )
+
+        # ── Guard: no active workflow may already exist for this decision ─────
+        existing_wf_result = await self.db.execute(
+            select(Workflow).where(
+                Workflow.decision_id == decision.id,
+                Workflow.status.in_([
+                    WorkflowStatus.PENDING,
+                    WorkflowStatus.IN_REVIEW,
+                    WorkflowStatus.APPROVED,
+                ]),
+            )
+        )
+        if existing_wf_result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="An active workflow already exists for this decision.",
+            )
 
         # ── Compliance gate — workflow CANNOT start without policy clearance ──
         policy_result = await self.policy_engine.evaluate({
@@ -118,8 +171,12 @@ class WorkflowService:
         return workflow
 
     async def approve_task(self, workflow_id: str, task_id: str, user_id: str) -> Task:
-        # ── Load task ─────────────────────────────────────────────────────────
-        result = await self.db.execute(select(Task).where(Task.id == task_id, Task.workflow_id == workflow_id))
+        # ── Load task with row-level lock (prevents double-approval races) ────
+        result = await self.db.execute(
+            select(Task)
+            .where(Task.id == task_id, Task.workflow_id == workflow_id)
+            .with_for_update()
+        )
         task = result.scalar_one_or_none()
         if not task:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
@@ -129,6 +186,37 @@ class WorkflowService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Task cannot be approved from status '{task.status}'.",
             )
+
+        # ── Sequential step enforcement ───────────────────────────────────────
+        # Before activating a PENDING task, verify all prior steps are completed.
+        if task.status == TaskStatus.PENDING:
+            current_step = (task.approval_notes or {}).get("step", 0)
+            if current_step > 1:
+                prior_result = await self.db.execute(
+                    select(Task).where(Task.workflow_id == workflow_id)
+                )
+                all_tasks = list(prior_result.scalars().all())
+                incomplete_prior = [
+                    t for t in all_tasks
+                    if (t.approval_notes or {}).get("step", 0) < current_step
+                    and t.status != TaskStatus.COMPLETED
+                ]
+                if incomplete_prior:
+                    prior_steps = sorted(
+                        {
+                            int(step)
+                            for t in incomplete_prior
+                            for step in [(t.approval_notes or {}).get("step")]
+                            if isinstance(step, int)
+                        }
+                    )
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=(
+                            f"Cannot start step {current_step}: "
+                            f"step(s) {prior_steps} must be completed first."
+                        ),
+                    )
 
         # ── Advance task state machine ────────────────────────────────────────
         if task.status == TaskStatus.PENDING:
@@ -179,7 +267,11 @@ class WorkflowService:
 
     async def reject_task(self, workflow_id: str, task_id: str, user_id: str, reason: str | None = None) -> Task:
         """Reject a pending/in-progress task — fails the workflow and the linked decision."""
-        result = await self.db.execute(select(Task).where(Task.id == task_id, Task.workflow_id == workflow_id))
+        result = await self.db.execute(
+            select(Task)
+            .where(Task.id == task_id, Task.workflow_id == workflow_id)
+            .with_for_update()
+        )
         task = result.scalar_one_or_none()
         if not task:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")

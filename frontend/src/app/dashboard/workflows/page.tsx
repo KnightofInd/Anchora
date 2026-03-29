@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { workflowApi } from "@/lib/api";
+import { workflowApi, getApiErrorMessage } from "@/lib/api";
+import { EmptyState, ErrorState, LoadingState } from "@/app/dashboard/_components/query-states";
+import { useToast } from "@/app/_components/toast";
 
 interface Task {
   id: string;
@@ -42,37 +44,73 @@ function roleInitials(role: string | undefined | null) {
   return role.split(/[\s_]+/).map((w) => w[0]?.toUpperCase() ?? "").slice(0, 2).join("");
 }
 
-function relTime(ts: string) {
-  const diff = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
-  if (diff < 1)    return "just now";
-  if (diff < 60)   return `${diff}m ago`;
-  if (diff < 1440) return `${Math.round(diff / 60)}h ago`;
-  return `${Math.round(diff / 1440)}d ago`;
+function formatWorkflowTime(ts: string) {
+  return new Date(ts).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export default function WorkflowsPage() {
+  const PAGE_SIZE = 8;
   const qc = useQueryClient();
+  const { showToast } = useToast();
   const [tab, setTab] = useState("");
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["workflows"],
-    queryFn:  () => workflowApi.list(),
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["workflows", tab, page],
+    queryFn:  () => workflowApi.list({
+      limit: PAGE_SIZE,
+      offset: (page - 1) * PAGE_SIZE,
+      ...(tab ? { status: tab } : {}),
+    }),
   });
 
   const approveMutation = useMutation({
     mutationFn: ({ workflow_id, task_id }: { workflow_id: string; task_id: string }) =>
       workflowApi.approveTask(workflow_id, task_id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["workflows"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["workflows"] });
+      showToast({
+        variant: "success",
+        title: "Task approved",
+        message: "Workflow progression updated.",
+      });
+    },
+    onError: (err: unknown) => {
+      showToast({
+        variant: "error",
+        title: "Approve failed",
+        message: getApiErrorMessage(err, "Unable to approve task."),
+      });
+    },
   });
 
   const rejectMutation = useMutation({
     mutationFn: ({ workflow_id, task_id }: { workflow_id: string; task_id: string }) =>
       workflowApi.rejectTask(workflow_id, task_id, "Rejected by reviewer"),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["workflows"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["workflows"] });
+      showToast({
+        variant: "info",
+        title: "Task rejected",
+        message: "The workflow was moved to rejected state.",
+      });
+    },
+    onError: (err: unknown) => {
+      showToast({
+        variant: "error",
+        title: "Reject failed",
+        message: getApiErrorMessage(err, "Unable to reject task."),
+      });
+    },
   });
 
-  const allWf: Workflow[] = data?.data ?? [];
-  const filtered = tab ? allWf.filter((w) => w.status === tab) : allWf;
+  const workflowsPage: Workflow[] = data?.data ?? [];
+  const hasNextPage = workflowsPage.length === PAGE_SIZE;
 
   return (
     <div className="p-6 space-y-5">
@@ -91,11 +129,13 @@ export default function WorkflowsPage() {
       {/* Tabs */}
       <div className="flex items-center gap-1.5 flex-wrap">
         {TABS.map(({ key, label }) => {
-          const count = key ? allWf.filter((w) => w.status === key).length : allWf.length;
           return (
             <button
               key={key}
-              onClick={() => setTab(key)}
+              onClick={() => {
+                setTab(key);
+                setPage(1);
+              }}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 tab === key
                   ? "bg-[#1e3fae] text-white shadow-sm"
@@ -103,9 +143,6 @@ export default function WorkflowsPage() {
               }`}
             >
               {label}
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${tab === key ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
-                {count}
-              </span>
             </button>
           );
         })}
@@ -113,15 +150,24 @@ export default function WorkflowsPage() {
 
       {/* Cards */}
       {isLoading ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-400 text-sm shadow-sm">Loading…</div>
-      ) : !filtered.length ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
-          <span className="material-symbols-outlined text-3xl text-slate-300">account_tree</span>
-          <p className="text-slate-400 text-sm mt-2">No workflows found. Start one from the Decisions page.</p>
-        </div>
+        <LoadingState label="Loading workflows..." />
+      ) : isError ? (
+        <ErrorState
+          title="Could not load workflows"
+          message={getApiErrorMessage(error, "Failed to load workflows.")}
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : !workflowsPage.length ? (
+        <EmptyState
+          icon="account_tree"
+          title="No workflows found"
+          description="Start one from the Decisions page to begin approvals."
+        />
       ) : (
         <div className="space-y-4">
-          {filtered.map((wf) => {
+          {workflowsPage.map((wf) => {
             const wfSc = WF_STATUS[wf.status] ?? WF_STATUS.pending;
             const pendingTask = wf.tasks?.find((t) => t.status === "pending");
             const rejectedTask = wf.tasks?.find((t) => t.status === "rejected");
@@ -141,7 +187,7 @@ export default function WorkflowsPage() {
                     Workflow for Decision{" "}
                     <span className="font-mono text-slate-500 text-[13px]">{wf.decision_id.slice(0, 8)}…</span>
                   </p>
-                  <p className="text-xs text-slate-400 mt-0.5">Initiated · {relTime(wf.created_at)}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Initiated · {formatWorkflowTime(wf.created_at)}</p>
                 </div>
 
                 {/* Stepper */}
@@ -237,15 +283,23 @@ export default function WorkflowsPage() {
       )}
 
       {/* Pagination hint */}
-      {filtered.length > 0 && (
+      {workflowsPage.length > 0 && (
         <div className="flex items-center justify-between pt-1">
-          <p className="text-xs text-slate-400">Showing {filtered.length} of {allWf.length} workflows</p>
+          <p className="text-xs text-slate-400">Showing page {page} ({workflowsPage.length} workflow{workflowsPage.length !== 1 ? "s" : ""})</p>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg hover:bg-white border border-slate-200 text-slate-400 disabled:opacity-30" disabled>
+            <button
+              className="p-1.5 rounded-lg hover:bg-white border border-slate-200 text-slate-400 disabled:opacity-30"
+              disabled={page <= 1}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            >
               <span className="material-symbols-outlined text-sm">chevron_left</span>
             </button>
-            <span className="px-2.5 py-1 rounded-lg bg-[#1e3fae] text-white text-xs font-semibold">1</span>
-            <button className="p-1.5 rounded-lg hover:bg-white border border-slate-200 text-slate-400 disabled:opacity-30" disabled>
+            <span className="px-2.5 py-1 rounded-lg bg-[#1e3fae] text-white text-xs font-semibold">{page}</span>
+            <button
+              className="p-1.5 rounded-lg hover:bg-white border border-slate-200 text-slate-400 disabled:opacity-30"
+              disabled={!hasNextPage}
+              onClick={() => setPage((prev) => prev + 1)}
+            >
               <span className="material-symbols-outlined text-sm">chevron_right</span>
             </button>
           </div>

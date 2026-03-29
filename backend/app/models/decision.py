@@ -35,6 +35,7 @@ class Decision(Base):
     id: Mapped[uuid.UUID]         = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title: Mapped[str]            = mapped_column(String(512), nullable=False)
     description: Mapped[str]      = mapped_column(Text, nullable=True)
+    context: Mapped[str]          = mapped_column(Text, nullable=True)
 
     # AI-generated fields (must store AI metadata for reproducibility)
     reasoning_summary: Mapped[str]   = mapped_column(Text, nullable=True)
@@ -46,6 +47,11 @@ class Decision(Base):
     ai_model_name: Mapped[str]      = mapped_column(String(128), nullable=True)
     ai_model_version: Mapped[str]   = mapped_column(String(64), nullable=True)
     ai_prompt_version: Mapped[str]  = mapped_column(String(64), nullable=True)
+
+    # Policy version pinning — snapshot of evaluated policies at creation time.
+    # Stored so that future policy changes cannot retroactively alter this record.
+    policy_snapshot: Mapped[dict]   = mapped_column(JSONB, default=dict, nullable=False)
+    quality_snapshot: Mapped[dict]  = mapped_column(JSONB, default=dict, nullable=False)
 
     # Status lifecycle — enforced as strict enum
     status: Mapped[str] = mapped_column(
@@ -71,6 +77,9 @@ class Decision(Base):
     # Relationships
     references: Mapped[list["DecisionReference"]] = relationship(
         "DecisionReference", back_populates="decision", cascade="all, delete-orphan"
+    )
+    meeting_notes: Mapped[list["DecisionMeetingNote"]] = relationship(
+        "DecisionMeetingNote", back_populates="decision", cascade="all, delete-orphan"
     )
     workflows:  Mapped[list["Workflow"]]   = relationship("Workflow",         back_populates="decision")
     compliance: Mapped[list["ComplianceCheck"]] = relationship("ComplianceCheck", back_populates="decision")
@@ -102,3 +111,36 @@ class DecisionReference(Base):
 
     def __repr__(self) -> str:
         return f"<DecisionReference decision={self.decision_id} doc={self.document_id}>"
+
+
+class DecisionMeetingNote(Base):
+    """Stores meeting transcripts and execution guidance linked to a decision."""
+
+    __tablename__ = "decision_meeting_notes"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    decision_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("decisions.id", ondelete="CASCADE"), nullable=False
+    )
+    meeting_title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    transcript_text: Mapped[str] = mapped_column(Text, nullable=False)
+    execution_guidance: Mapped[str | None] = mapped_column(Text, nullable=True)
+    action_items: Mapped[list] = mapped_column(JSONB, default=list, nullable=False)
+    created_by: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    decision: Mapped["Decision"] = relationship("Decision", back_populates="meeting_notes")
+    creator: Mapped["User"] = relationship("User")
+
+    def __repr__(self) -> str:
+        return f"<DecisionMeetingNote decision={self.decision_id} id={self.id}>"

@@ -20,7 +20,8 @@ credentials.txt
 .env.*.local
 backend/.env
 frontend/.env.local
-# keep .env.example and .env.local.example
+backend/.env.example
+frontend/.env.local.example
 
 # ---------------------------------------------------------------------------
 # PYTHON
@@ -130,6 +131,37 @@ desktop.ini
 *.bak
 *.tmp
 *.temp
+
+# Local research and transfer docs not required for runtime
+AGENT_TRANSFER_GUIDE.md
+RESEARCH_PAPER.md
+RESEARCH_PAPER.tex
+fig.tex
+pageindex.txt
+policy123.txt
+sample_decisions.txt
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+*.xdv
+
+# Operational backup artifacts
+backups/
+*.dump
+*.backup
+*.sql.gz
 
 # Large binary / presentation files that shouldn't be versioned
 *.pdf

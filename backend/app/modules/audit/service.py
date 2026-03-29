@@ -22,15 +22,32 @@ class AuditService:
         entity_type: str | None = None,
         entity_id: str | None = None,
         performed_by: str | None = None,
+        limit: int = 20,
+        offset: int = 0,
+        sort_by: str = "timestamp",
+        sort_order: str = "desc",
     ) -> list[AuditLog]:
-        query = select(AuditLog).order_by(AuditLog.timestamp.desc())
+        sort_columns = {
+            "timestamp": AuditLog.timestamp,
+            "entity_type": AuditLog.entity_type,
+            "action": AuditLog.action,
+        }
+        column = sort_columns.get(sort_by, AuditLog.timestamp)
+        order_expr = column.asc() if sort_order == "asc" else column.desc()
+
+        query = select(AuditLog)
         if entity_type:
             query = query.where(AuditLog.entity_type == entity_type)
         if entity_id:
             query = query.where(AuditLog.entity_id == entity_id)
         if performed_by:
             query = query.where(AuditLog.performed_by == performed_by)
-        result = await self.db.execute(query)
+        result = await self.db.execute(
+            query
+            .order_by(order_expr)
+            .limit(limit)
+            .offset(offset)
+        )
         return list(result.scalars().all())
 
     async def trace_decision(self, decision_id: str) -> list[AuditLog]:

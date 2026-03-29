@@ -1,68 +1,83 @@
-"""
-Anchora – Critical Traceability Tests
---------------------------------------
-These are the Phase 7 acceptance tests.
-If any of these fail, the system is architecturally broken.
+"""Phase 3 regression tests for the already delivered hardening work.
 
-Test 1: Create decision → trace document references
-Test 2: Execute workflow → verify audit logs exist
-Test 3: Fail compliance → confirm execution is blocked
-Test 4: Retrieve audit trail → full lifecycle visible
+Coverage targets:
+1. Phase 1 API contracts (pagination + validation envelope)
+2. Phase 2 policy snapshot persistence exposure
+3. Phase 2 workflow guard (non-draft decision cannot start workflow)
 """
 
 import pytest
-from httpx import AsyncClient, ASGITransport
-from app.main import app
+from fastapi.testclient import TestClient
+
+ADMIN_EMAIL = "admin@anchora.dev"
+ADMIN_PASSWORD = "Admin@1234"
 
 
-BASE = "http://test"
+def _auth_headers(client: TestClient) -> dict[str, str]:
+    """Login using seeded admin credentials and return bearer auth headers."""
+    login = client.post(
+        "/api/auth/login",
+        json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD},
+    )
+    assert login.status_code == 200, login.text
+    token = login.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 
 
-@pytest.mark.asyncio
-async def test_decision_traces_document_references():
-    """
-    Test 1: A created decision must contain DecisionReference records
-    linking back to the source documents used for its recommendation.
-    """
-    async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE) as client:
-        # This test requires a seeded DB with a user + document
-        # Full implementation in Phase 7 with fixtures
-        response = await client.get("/api/health")
-        assert response.status_code == 200
-        assert response.json()["status"] == "ok"
+def test_health_endpoint_is_up(client: TestClient) -> None:
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
 
 
-@pytest.mark.asyncio
-async def test_workflow_creates_audit_log():
-    """
-    Test 2: Starting a workflow must produce at minimum one audit log entry
-    for the 'started' action with the correct entity_type = 'workflow'.
-    """
-    # Full implementation in Phase 7 with fixtures + DB seed
-    assert True  # placeholder — structure confirmed
+def test_decisions_list_supports_phase1_pagination_and_phase2_snapshot(client: TestClient) -> None:
+    headers = _auth_headers(client)
+    response = client.get(
+        "/api/decisions/?limit=5&offset=0&sort_by=created_at&sort_order=desc",
+        headers=headers,
+    )
+    assert response.status_code == 200, response.text
+
+    decisions = response.json()
+    assert isinstance(decisions, list)
+    assert len(decisions) <= 5
+
+    # If seeded records exist, each record should expose policy_snapshot.
+    if decisions:
+        first = decisions[0]
+        assert "policy_snapshot" in first
+        assert isinstance(first["policy_snapshot"], dict)
 
 
-@pytest.mark.asyncio
-async def test_compliance_failure_blocks_workflow():
-    """
-    Test 3: A decision with risk_score > 9 must be blocked by the policy engine
-    before workflow creation. The workflow endpoint must return 403.
-    """
-    # Full implementation in Phase 7
-    assert True  # placeholder — rule engine logic confirmed in evaluator.py
+def test_validation_errors_use_normalized_envelope(client: TestClient) -> None:
+    headers = _auth_headers(client)
+    response = client.get("/api/decisions/?limit=0", headers=headers)
+    assert response.status_code == 422
+
+    body = response.json()
+    assert body["success"] is False
+    assert body["error"]["code"] == "VALIDATION_ERROR"
+    assert isinstance(body["detail"], list)
 
 
-@pytest.mark.asyncio
-async def test_audit_trail_full_lifecycle():
-    """
-    Test 4: Given a decision_id, the /api/audit/trace/{decision_id} endpoint
-    must return audit records covering:
-    - decision created
-    - compliance checked
-    - workflow started
-    - task approved
+def test_phase2_guard_blocks_workflow_start_for_non_draft_decision(client: TestClient) -> None:
+    headers = _auth_headers(client)
 
-    If any link is missing, the trace is incomplete.
-    """
-    # Full implementation in Phase 7
-    assert True  # placeholder — audit engine confirmed append-only
+    dec_resp = client.get("/api/decisions/?limit=20", headers=headers)
+    assert dec_resp.status_code == 200, dec_resp.text
+    decisions = dec_resp.json()
+
+    non_draft = next((d for d in decisions if d.get("status") != "draft"), None)
+    if non_draft is None:
+        pytest.skip("No non-draft decision available in seed data for guard test.")
+
+    start_resp = client.post(
+        "/api/workflows/",
+        headers=headers,
+        json={"decision_id": non_draft["id"]},
+    )
+    assert start_resp.status_code == 409
+    body = start_resp.json()
+    assert body["success"] is False
+    assert body["error"]["code"] == "HTTP_409"
