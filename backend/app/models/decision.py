@@ -79,7 +79,10 @@ class Decision(Base):
         "DecisionReference", back_populates="decision", cascade="all, delete-orphan"
     )
     meeting_notes: Mapped[list["DecisionMeetingNote"]] = relationship(
-        "DecisionMeetingNote", back_populates="decision", cascade="all, delete-orphan"
+        "DecisionMeetingNote",
+        back_populates="decision",
+        cascade="all, delete-orphan",
+        lazy="noload",
     )
     workflows:  Mapped[list["Workflow"]]   = relationship("Workflow",         back_populates="decision")
     compliance: Mapped[list["ComplianceCheck"]] = relationship("ComplianceCheck", back_populates="decision")

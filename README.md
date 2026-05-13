@@ -1,231 +1,555 @@
-<!--
-README.md — premium, startup-style landing README
-Replace placeholders in square brackets with your project values.
--->
+# ANCHORA
 
-<div align="center">
-	<h1 style="font-weight:800; letter-spacing: -1px; margin-bottom:6px;">
-		<span style="background:linear-gradient(90deg,#8be9fd,#50fa7b,#bd93f9); -webkit-background-clip:text; color:transparent;">
-			[YOUR PROJECT NAME]
-		</span>
-	</h1>
-
-	<!-- Animated typing -->
-	<img src="https://readme-typing-svg.demolab.com?font=Fira+Sans&size=24&pause=1200&color=00FFAA&center=true&width=680&lines=[SHORT+POWERFUL+TAGLINE];[CORE+IDEA]" alt="typing" />
-
-	<!-- Badges -->
-	<p>
-		<img alt="version" src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge" />
-		<img alt="status" src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" />
-		<img alt="python" src="https://img.shields.io/badge/python-3.11-%233776AB?style=for-the-badge" />
-		<img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge" />
-	</p>
-
-	<!-- Tagline -->
-	<p style="font-size:16px; margin-top:6px;">
-		<span style="background:linear-gradient(90deg,#FFD700,#FF6A88); padding:6px 12px; border-radius:999px; color:#111; font-weight:600;">
-			[SHORT POWERFUL TAGLINE]
-		</span>
-	</p>
-
-	<!-- Optional banner -->
-	<p>
-		<img src="https://raw.githubusercontent.com/your/repo/main/assets/banner.gif" alt="banner" style="max-width:900px; width:95%; border-radius:12px; margin-top:16px;" />
-	</p>
-</div>
-
-<!-- VISUAL DIVIDER -->
-<p align="center">✨ — — — • • • — — — ✨</p>
-
-**One‑liner:** [CORE IDEA] — solving [REAL WORLD PROBLEM] for [TARGET USERS].
+## *Decision Intelligence & Governance Operating System*
 
 ---
 
-## 💡 Why it matters
+> **The future of enterprise decision-making isn't faster. It's traceable, intelligent, and provably compliant.**
 
-- **Problem:** [REAL WORLD PROBLEM] causes friction and slow decision cycles in modern ops and governance teams.
-- **Solution:** [YOUR PROJECT NAME] reduces manual review by combining auditable retrieval, lightweight ML, and explicit policy checks.
-- **Audience:** [TARGET USERS] — security teams, governance engineers, product ops, and L4 decision owners.
-
----
-
-<p align="center">🌟 Feature Snapshot</p>
-
-<!-- FEATURE SHOWCASE: card grid using table -->
-<table align="center" width="100%" style="max-width:1000px; margin: 12px auto 24px auto;">
-	<tr>
-		<td align="center" valign="top" width="50%" style="padding:10px;">
-			<div style="border-radius:12px; padding:14px; box-shadow:0 8px 30px rgba(11,22,39,0.06);">
-				<h3>🔎 Explainable Retrieval</h3>
-				<p style="margin:6px 0 8px 0; color:#444;">Chunk-first hybrid search with traceable citations and grounding scores.</p>
-				<p style="font-size:12px; color:#666; margin:0;">`backend/app/modules/knowledge` · Evidence-first</p>
-			</div>
-		</td>
-		<td align="center" valign="top" width="50%" style="padding:10px;">
-			<div style="border-radius:12px; padding:14px; box-shadow:0 8px 30px rgba(11,22,39,0.06);">
-				<h3>🧠 Auditable AI Guidance</h3>
-				<p style="margin:6px 0 8px 0; color:#444;">Structured AI recommendations with prompt + model metadata persisted for reproducibility.</p>
-				<p style="font-size:12px; color:#666; margin:0;">`backend/app/services/ai_service.py` · Gemini / prompt templating</p>
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<td align="center" valign="top" style="padding:10px;">
-			<div style="border-radius:12px; padding:14px; box-shadow:0 8px 30px rgba(11,22,39,0.06);">
-				<h3>⚖️ Policy‑First Controls</h3>
-				<p style="margin:6px 0 8px 0; color:#444;">Policy engine enforces rules and can hard‑block or require escalation.</p>
-				<p style="font-size:12px; color:#666; margin:0;">`backend/app/core/policy_engine` · Deterministic decisions</p>
-			</div>
-		</td>
-		<td align="center" valign="top" style="padding:10px;">
-			<div style="border-radius:12px; padding:14px; box-shadow:0 8px 30px rgba(11,22,39,0.06);">
-				<h3>🧾 Immutable Audit Trail</h3>
-				<p style="margin:6px 0 8px 0; color:#444;">Append-only audit logs capture every decision lifecycle event and metadata snapshot.</p>
-				<p style="font-size:12px; color:#666; margin:0;">`backend/app/core/audit_engine` · For compliance</p>
-			</div>
-		</td>
-	</tr>
-</table>
+```
+┌───────────────────────────────────────────────────────────────────┐
+│                                                                   │
+│                    ◆  SYSTEM ONLINE  ◆                            │
+│                                                                   │
+│    Decision Intelligence Engine v0.1.0                           │
+│    Status: Operational  |  Auth: Verified  |  Audit: Immutable   │
+│                                                                   │
+└───────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-<p align="center">🚀 Live Preview</p>
+## What This Is
 
-<p align="center">
-	<img src="https://raw.githubusercontent.com/your/repo/main/assets/preview.gif" alt="preview" style="max-width:900px; width:95%; border-radius:10px;" />
-</p>
+Anchora is not a workflow tool. It is not a simple approval system.
 
----
+**Anchora is a decision operating system** — a cryptographically-grounded, AI-augmented, governance-enforced platform where every decision is:
 
-## 🏛 Architecture (developer view)
+- **Traceable**: Full audit chain from input to execution
+- **Intelligent**: AI reasoning + risk scoring + confidence quantification  
+- **Governed**: Policy engine + compliance gates + breach detection
+- **Immutable**: Append-only audit logs with temporal proof
+- **Enterprise-Ready**: RBAC, JWT rotation, SLO monitoring, semantic retrieval
 
-<!-- Small ASCII / flow diagram — compact, developer-focused -->
-<pre style="background:#0b1220; color:#d6e1ff; padding:12px; border-radius:8px; overflow:auto;">
-									 ┌─────────────────────┐
-									 │   User / Frontend   │
-									 └──────────┬──────────┘
-															│ REST / WebSocket
-								┌─────────────▼─────────────┐
-								│     API Gateway / Next    │
-								└─────────────┬─────────────┘
-															│
-					┌───────────────────┴───────────────────┐
-					│          Anchora Backend (FastAPI)    │
-					│ ┌──────────┐  ┌────────────┐  ┌──────┐│
-					│ │Knowledge │  │ Decision   │  │Policy││
-					│ │Service   │  │Service     │  │Engine││
-					│ └──────────┘  └────────────┘  └──────┘│
-					└──────────┬──────────┬──────────┬──────┘
-										 │          │          │
-					┌──────────▼──┐  ┌────▼────┐  ┌───▼────┐
-					│Embeddings  │  │AI (Gemini)│ │DB (pg) │
-					│Service     │  │Service     │ │ + pgvector│
-					└────────────┘  └────────────┘ └─────────┘
-</pre>
-
-- Diagram notes:
-	- Retrieval is chunk-first: vector search on `KnowledgeChunk`, then hybrid rerank.
-	- AI responses are normalized and persisted with prompt/model metadata for traceability.
-	- Policy snapshot is frozen at decision creation for future audits.
+Every decision object is a first-class citizen. Every transition is logged. Every reasoning is preserved.
 
 ---
 
-## 🧰 Tech Stack
+## The Philosophy
 
-<p align="center">
-	<!-- Grouped badges -->
-	<img src="https://img.shields.io/badge/Frontend-Next.js-000?style=flat-square&logo=next.js" />&nbsp;
-	<img src="https://img.shields.io/badge/Backend-FastAPI-009cbc?style=flat-square&logo=fastapi" />&nbsp;
-	<img src="https://img.shields.io/badge/DB-Postgres-316192?style=flat-square&logo=postgresql" />&nbsp;
-	<img src="https://img.shields.io/badge/Vector-pgvector-ff6f61?style=flat-square" />&nbsp;
-	<img src="https://img.shields.io/badge/AI-Gemini-7f5af0?style=flat-square" />
-</p>
+In legacy enterprise systems, decisions disappear into email threads and spreadsheets. Governance becomes forensics.
 
-- Frontend: Next.js (TypeScript), Tailwind CSS
-- Backend: FastAPI, SQLAlchemy (async), Pydantic
-- AI / Embeddings: Gemini, custom embedding service adapter
-- Infra: Docker, docker-compose, Supabase (storage/postgres)
+Anchora inverts this:
+
+| Legacy | Anchora |
+|--------|---------|
+| Decisions scattered across channels | Decisions are structured, queryable objects |
+| Governance applied retroactively | Governance enforced in real-time |
+| Risk is guessed | Risk is quantified and scored |
+| Audit trails are reconstructed | Audit is immutable, native, complete |
+
+The result: organizations make **faster decisions** with **more confidence**, not less.
 
 ---
 
-## 🧩 Quick Start
+## Core Capabilities
 
-Minimal local dev (assumes Docker and Python 3.11):
+### Intelligent Reasoning Engine
+Every decision is reasoned by Gemini 1.5-pro, grounded in your knowledge base through semantic retrieval. Confidence and risk are quantified, not guessed. Assumptions are extracted and audited.
+
+### Real-Time Policy Enforcement
+Policy engine evaluates decisions *before* they enter workflows. Violations trigger automatic escalation. Rules are versioned and frozen at decision time — future policy changes don't retroactively alter compliance.
+
+### Risk-Aware Workflows
+Multi-step task chains adapt to risk level. Low-risk decisions skip approval. High-risk decisions escalate through analyst → manager → compliance. Every task transition is logged with full context.
+
+### Semantic Knowledge Retrieval
+Upload documents once. They're automatically embedded (768-dim pgvector). Every decision retrieves relevant context. AI reasoning is grounded in *your* data — not hallucinations.
+
+### Quality Observability
+Every decision captures grounding score, retrieval metadata, model provenance, and policy snapshots. Reproducibility is built in.
+
+### Immutable Audit Trail
+Full lifecycle traceability: decision created → compliance checked → workflow started → tasks approved/rejected. Database-enforced append-only logs. No deletion. No tampering.
+
+### SLO-Driven Operations
+Real-time metrics: error rate, p95 latency, compliance violations. Operational health dashboard. Governance isn't just correct — it's fast.
+
+---
+
+## System Architecture
+
+### **The Layered Operating System**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                           │
+│             Next.js 14 | React 19 | Tailwind CSS               │
+│  Dashboard • Decisions • Workflows • Knowledge • Audit Viewer   │
+└─────────────────────────────────────────────────────────────────┘
+                              ▲
+                              │
+┌─────────────────────────────────────────────────────────────────┐
+│                      API LAYER (FastAPI)                        │
+│  /auth  |  /decisions  |  /workflows  |  /knowledge  |  /audit  │
+└─────────────────────────────────────────────────────────────────┘
+                              ▲
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+┌───────────────┐  ┌──────────────────┐  ┌──────────────────┐
+│  INTELLIGENCE │  │   GOVERNANCE     │  │   PERSISTENCE   │
+│  Google LLM   │  │ Policy Evaluator │  │  PostgreSQL +   │
+│  Embeddings   │  │ Compliance Check │  │  pgvector       │
+│  Reasoning    │  │ Risk Scoring     │  │  Audit Logs     │
+└───────────────┘  └──────────────────┘  └──────────────────┘
+```
+
+### **Service Architecture**
+
+```
+Authentication           Policy Engine              Knowledge System
+├─ JWT Generation        ├─ Policy Evaluation       ├─ Document Upload
+├─ Refresh Rotation      ├─ Risk Assessment        ├─ Embedding Gen
+├─ Session Management    ├─ Compliance Check       ├─ Semantic Search
+└─ JTI Blocklist         └─ Escalation Logic       └─ Retrieval Cache
+
+    ▼                          ▼                        ▼
+    
+Decision Pipeline            Workflow Pipeline         Audit Pipeline
+├─ Create Decision      →     ├─ Start Workflow   →    ├─ Event Log
+├─ AI Reasoning               ├─ Task Generation       ├─ State Trail
+├─ Grounding Check            ├─ Approval Chain        ├─ User Trail
+├─ Policy Check               ├─ Rejection Handler     └─ Immutable
+└─ Persist (Audit)            └─ Completion Handler        Chain
+```
+
+---
+
+## The Decision Engine Pipeline
+
+Every decision flows through a proven, automated pipeline designed for speed and governance:
+
+```
+REQUEST
+│ title, description, context
+│
+▼
+┌─────────────────────────────────────────────┐
+│  SEMANTIC RETRIEVAL                         │
+│  • Query embedding (Gemini)                 │
+│  • pgvector cosine search                   │
+│  • Fallback to recent documents             │
+└──────────────┬────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│  AI REASONING ENGINE (Gemini 1.5-pro)       │
+│  • Generate reasoning_summary               │
+│  • Compute confidence_score (0.0-1.0)      │
+│  • Compute risk_score (0.0-10.0)           │
+│  • Extract assumptions + evidence           │
+└──────────────┬────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│  GROUNDING QUALITY GATE                     │
+│  • Citation coverage analysis               │
+│  • Lexical overlap scoring                  │
+│  • Weighted quality metric                  │
+│  • BLOCK if score < threshold              │
+└──────────────┬────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│  POLICY ENGINE (Pre-Check)                  │
+│  • Evaluate all active policies             │
+│  • Risk-aware escalation                    │
+│  • Compliance gates                         │
+│  • BLOCK if violations exist               │
+└──────────────┬────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│  PERSIST DECISION                           │
+│  • Store with policy snapshot               │
+│  • Link to retrieved documents              │
+│  • Audit log event                          │
+│  • Idempotency guard                        │
+└──────────────┬────────────────────────────┘
+               │
+               ▼
+          ✓ CREATED (DRAFT)
+```
+
+---
+
+## Technology Stack
+
+### Backend & Core
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Framework** | FastAPI | Modern async Python web |
+| **Database** | PostgreSQL (Supabase) | Primary store + audit logs |
+| **Vector DB** | pgvector | Semantic similarity search |
+| **Storage** | Supabase Storage | Document storage + signed URLs |
+| **ORM** | SQLAlchemy 2.0 | Async database access |
+| **Migrations** | Alembic | SQL versioning & schema management |
+
+### AI & Intelligence
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **LLM** | Google Gemini 1.5-pro | Decision reasoning + analysis |
+| **Embeddings** | Gemini embedding-001 | 768-dim semantic vectors |
+| **Grounding Evaluator** | Custom Python | Citation scoring + quality gates |
+| **Retrieval** | pgvector cosine | Fast semantic search |
+
+### Frontend & Experience
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Framework** | Next.js 14 (React 19) | App router + server components |
+| **State Mgmt** | TanStack React Query v5 | Async data + cache |
+| **Styling** | Tailwind CSS 3.4 | Utility-first design system |
+| **Forms** | React Hook Form + Zod | Type-safe form validation |
+| **HTTP** | Axios | API requests + interceptors |
+| **UI State** | Custom Providers | Toast notifications + session |
+
+### Infrastructure & DevOps
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Containerization** | Docker + docker-compose | Local dev + staging |
+| **Frontend Deploy** | Vercel | Optimized React hosting |
+| **Backend Deploy** | Cloud Run / Heroku | Serverless Python |
+| **CI/CD** | GitHub Actions | Lint, type-check, test, deploy |
+| **Monitoring** | Request metrics | SLO tracking + observability |
+
+### Security & Compliance
+
+| Feature | Implementation | Purpose |
+|---------|--------------|---------|
+| **Auth** | JWT (HS256) + Refresh | Stateless, scalable auth |
+| **Password** | bcrypt | Secure hashing |
+| **Cookies** | HttpOnly + Secure + SameSite | XSS + CSRF protection |
+| **Token Reuse** | JTI tracking | Prevent token replay |
+| **Idempotency** | Request dedup | Prevent duplicate submissions |
+| **Audit** | Append-only PostgreSQL | Immutable governance trail |
+| **RBAC** | Role-based access control | Endpoint-level authorization |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+```
+Python 3.10+
+Node.js 18+
+PostgreSQL 13+ (or Supabase cloud)
+Google AI API key (Gemini access)
+```
+
+### Backend Setup
 
 ```bash
-# clone
-git clone https://github.com/your/repo.git
-cd repo
-
-# backend env
-cp backend/.env.example backend/.env
-# edit backend/.env to add keys (GEMINI_API_KEY, DATABASE_URL, etc.)
-
-# run with docker compose (recommended)
-docker compose up --build
-
-# or run backend locally (venv)
 cd backend
-python -m venv .venv
-. .venv/bin/activate
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
 pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with DATABASE_URL, GEMINI_API_KEY, SUPABASE credentials
+
+# Initialize database
+alembic upgrade head
+python seed.py
+
+# Run backend
 uvicorn app.main:app --reload
+# API at http://localhost:8000/api/docs
 ```
 
----
-
-## 🧪 Testing & Validation (real examples)
-
-- Unit tests mock AI and embeddings to ensure deterministic behavior.
-- Integration tests validate idempotency, policy gating, and audit entries.
-- Run tests:
+### Frontend Setup
 
 ```bash
-cd backend
-pytest -q
+cd frontend
+npm install
+
+# Configure environment
+cp .env.local.example .env.local
+# Edit .env.local: NEXT_PUBLIC_API_URL=http://localhost:8000/api
+
+npm run dev
+# Frontend at http://localhost:3000
+```
+
+### Docker Compose (Quickstart)
+
+```bash
+docker-compose up
+# API at http://localhost:8000/api
+# Frontend at http://localhost:3000
+# DB at localhost:5432
+```
+
+### Production Deployment
+
+**Backend:**
+```bash
+export DATABASE_URL=postgresql://...
+export GEMINI_API_KEY=...
+export SECRET_KEY=$(openssl rand -hex 32)
+export AUTH_COOKIE_SECURE=true
+
+alembic upgrade head
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+**Frontend:**
+```bash
+vercel --prod
+# Set NEXT_PUBLIC_API_URL to production backend
 ```
 
 ---
 
-## 🎯 Use Cases
+## Example: Making a Decision
 
-- **Governance Analyst:** Fast, auditable recommendations with citations for board reviews.
-- **Security Engineer:** Policy-first checks to prevent risky configuration changes.
-- **Product Ops:** Simulate “what-if” scenarios before executing system-wide adjustments.
+### Via REST API
+
+```bash
+curl -X POST http://localhost:8000/api/decisions/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: req-12345" \
+  -d '{
+    "title": "Approve vendor contract for cloud services",
+    "description": "5-year managed Kubernetes agreement",
+    "context": "Current: on-prem. Target: cloud migration. Risk: downtime. Budget: $2.5M/year"
+  }'
+```
+
+**Response (201 CREATED):**
+```json
+{
+  "id": "dec_abc123",
+  "title": "Approve vendor contract for cloud services",
+  "status": "draft",
+  "confidence_score": 0.78,
+  "risk_score": 6.2,
+  "ai_reasoning": "Based on operational requirements and budget alignment, recommend approval with contingency planning for downtime mitigation.",
+  "policy_snapshot": {
+    "rules_evaluated": [...],
+    "violations": []
+  },
+  "quality_snapshot": {
+    "grounding": {
+      "score": 0.85,
+      "citation_coverage": 0.9,
+      "lexical_overlap": 0.78
+    },
+    "retrieval": {
+      "mode": "semantic",
+      "document_count": 3
+    },
+    "model": "gemini-1.5-pro-001"
+  }
+}
+```
+
+### Via Dashboard
+
+1. Navigate to `/dashboard/decisions`
+2. Click **New Decision**
+3. Enter title + context
+4. Submit → AI reasons → Risk assessed → Policy checked → Stored
+5. View full traceability
+6. Approve or start workflow
 
 ---
 
-## 🛣 Roadmap
+## Security & Trust Model
 
-- [x] Core decision pipeline and retrieval
-- [x] AIService prompt templating and grounding evaluator
-- [x] End‑to‑end tests and idempotency
-- [ ] Role-based UI and improved UX flows
-- [ ] Multi‑model support + model‑policy mapping
-- [ ] SaaS packaging + tenants and billing
+### Authentication & Session Management
+
+- **JWT Tokens**: 30-minute access tokens with refresh rotation
+- **Refresh Tokens**: Rotated on every refresh, tracked via JTI
+- **Cookie Security**: HttpOnly + Secure + SameSite=Lax
+- **Brute-Force Protection**: 5 failed logins → 15-minute lockout
+- **Session Expiry**: Automatic on inactivity
+
+### Authorization & Access Control
+
+- **Role-Based Access Control (RBAC)**: Admin, Analyst, Manager, Auditor, Viewer
+- **Endpoint Protection**: Every route enforced with role checks
+- **Decision Ownership**: Users can only view/edit their own decisions (unless admin)
+- **Workflow Assignment**: Managers approve assigned tasks only
+
+### Audit & Immutability
+
+- **Append-Only Logs**: Database-enforced immutability (no UPDATEs to audit table)
+- **Event Logging**: Every action tracked: `decision.created`, `task.approved`, `policy.violated`
+- **Lifecycle Traceability**: Full path from input → output via `/audit/trace/{decision_id}`
+- **Policy Snapshots**: Policies frozen at decision time (no retroactive compliance changes)
+- **Timestamps**: UTC, auditable, synchronized
+
+### Data Integrity & Protection
+
+- **Idempotency Keys**: Prevent duplicate submissions via `Idempotency-Key` header
+- **Document Integrity**: SHA-256 hashing for uploaded files
+- **Token Reuse Detection**: Cryptographic JTI tracking
+- **Row-Level Locking**: Prevents race conditions on task approvals
+- **Encrypted Secrets**: GEMINI_API_KEY never logged, only used server-side
+
+### Governance Enforcement
+
+- **Pre-Creation Policies**: Violations block decision creation (not post-hoc)
+- **Automated Escalation**: High-risk decisions → compliance review
+- **Grounding Quality Gate**: AI reasoning must cite sources (>70% threshold)
+- **Compliance Audit**: Non-fatal checks logged for reporting
 
 ---
 
-## 📚 Resources & Links
+## Roadmap: Strategic Evolution
 
-- Code: https://github.com/your/repo
-- Docs: /docs (coming soon)
-- Demo: [OPTIONAL] [Demo Link]
+### Phase 5 — Foundation ✓
+- Complete core decision + workflow engine
+- Immutable audit trail
+- Semantic knowledge retrieval
+- Real-time policy enforcement
+- Dashboard & API fundamentals
+
+### Phase 6 — Integration Layer *In Progress*
+- ERP/CRM adapters (decision push-back)
+- Advanced policy engine (OPA integration)
+- Batch operations (bulk decisions + approvals)
+- Custom LLM support (beyond Gemini)
+- Advanced analytics dashboard
+
+### Phase 7 — Enterprise Scale *Planned*
+- Multi-tenant support (data isolation)
+- Compliance reporting (SOC 2, ISO 27001, GDPR)
+- Webhook integrations (real-time notifications)
+- Mobile app (iOS/Android approvals)
+- White-label platform
+
+### Phase 8 — Ecosystem *Envisioned*
+- Third-party integrations marketplace
+- Custom policy language (DSL)
+- Decision analytics + ML insights
+- GraphQL API
+- Blockchain audit trail option
 
 ---
 
-<p align="center">✨</p>
+## Contributing
 
-**Contribute & Star** — If this resonates, please consider starring the repo and raising issues for ideas or blockers.
+Anchora welcomes builders, operators, and thinkers who believe in intelligent governance.
+
+### Development Workflow
+
+```bash
+# 1. Fork & clone
+git clone https://github.com/nexacore/anchora.git
+cd anchora
+
+# 2. Create feature branch
+git checkout -b feature/your-feature
+
+# 3. Implement with tests
+# Backend: pytest tests/
+# Frontend: npm run lint
+
+# 4. Run checks
+cd backend && pytest tests/ -v
+cd frontend && npm run lint && npm run build
+
+# 5. Submit PR
+git push origin feature/your-feature
+# Open pull request with clear description
+```
+
+### Code Standards
+
+**Backend (Python)**
+- Type hints on all functions
+- Docstrings for public APIs
+- Async/await patterns for I/O
+- Tests for critical paths
+- Conventional commits (feat:, fix:, docs:)
+
+**Frontend (TypeScript)**
+- TypeScript strict mode
+- React Query conventions
+- Tailwind component patterns
+- Unit tests for logic
+- E2E tests for workflows
+
+### Areas for Contribution
+
+- Policy engine enhancements (OPA)
+- LLM backend integrations (LLaMA, Mistral, GPT-4)
+- Dashboard visualizations (decision trends, risk heatmaps)
+- Mobile app scaffolding
+- Deployment automation (Terraform, Helm)
+- Documentation + tutorials
+- Compliance framework tooling
 
 ---
 
-<footer align="center">
-	<p style="font-size:12px; color:#666;">
-		Built for clarity, auditability, and scale — [YOUR PROJECT NAME] turns governance into repeatable code.
-	</p>
-	<p>
-		<a href="https://github.com/your/repo/issues">Report an issue</a> ·
-		<a href="https://github.com/your/repo/blob/main/CONTRIBUTING.md">Contribute</a>
-	</p>
-</footer>
+## Documentation
+
+- **[Agent Transfer Guide](./AGENT_TRANSFER_GUIDE.md)** — Technical handoff for developers
+- **[API Reference](./backend/docs/api.md)** — Complete endpoint specifications
+- **[Database Schema](./backend/docs/schema.md)** — Entity relationships & indexing
+- **[Security Model](./backend/docs/security.md)** — Auth, RBAC, audit architecture
+- **[Deployment Guide](./backend/docs/deployment.md)** — Production setup & scaling
+
+---
+
+## License
+
+Anchora is licensed under the **Apache 2.0 License**.
+
+See [LICENSE](./LICENSE) for details.
+
+---
+
+## Support & Community
+
+| Channel | Purpose |
+|---------|---------|
+| **GitHub Issues** | Bugs, feature requests, technical discussions |
+| **GitHub Discussions** | Architecture questions, RFCs, ideas |
+| **Email** | contact@nexacore.dev |
+| **Security** | security@nexacore.dev (responsible disclosure) |
+
+---
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│                                                               │
+│   ╔═══════════════════════════════════════════════════════╗   │
+│   ║                                                       ║   │
+│   ║   ANCHORA: Where Intelligence Meets Governance       ║   │
+│   ║                                                       ║   │
+│   ║   Every decision leaves a trace.                     ║   │
+│   ║   Every trace tells the truth.                       ║   │
+│   ║   Every truth builds trust.                          ║   │
+│   ║                                                       ║   │
+│   ║   Build with conviction.                             ║   │
+│   ║   Decide with confidence.                            ║   │
+│   ║   Govern with transparency.                          ║   │
+│   ║                                                       ║   │
+│   ╚═══════════════════════════════════════════════════════╝   │
+│                                                               │
+└───────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**Last Updated**: May 2026 | **Version**: 0.1.0 | **Status**: Operational | **License**: Apache 2.0

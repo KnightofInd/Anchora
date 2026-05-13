@@ -219,7 +219,7 @@ class DecisionService:
         # Reload with references for the response
         result = await self.db.execute(
             select(Decision)
-            .options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
+            .options(selectinload(Decision.references))
             .where(Decision.id == decision.id)
         )
         return result.scalar_one()
@@ -277,7 +277,7 @@ class DecisionService:
     async def get_by_id(self, decision_id: str) -> Decision:
         result = await self.db.execute(
             select(Decision)
-            .options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
+            .options(selectinload(Decision.references))
             .where(Decision.id == decision_id)
         )
         decision = result.scalar_one_or_none()
@@ -291,7 +291,7 @@ class DecisionService:
     async def list_all(self) -> list[Decision]:
         result = await self.db.execute(
             select(Decision)
-            .options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
+            .options(selectinload(Decision.references))
             .order_by(Decision.created_at.desc())
         )
         return list(result.scalars().all())
@@ -315,7 +315,7 @@ class DecisionService:
         column = sort_columns.get(sort_by, Decision.created_at)
         order_expr = column.asc() if sort_order == "asc" else column.desc()
 
-        query = select(Decision).options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
+        query = select(Decision).options(selectinload(Decision.references))
         if status_filter:
             query = query.where(Decision.status == status_filter)
 
