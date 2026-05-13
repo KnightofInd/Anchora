@@ -8,6 +8,7 @@ OPA Migration: Replace this file's evaluate() with an HTTP call to OPA.
 Business logic in modules remains untouched.
 """
 
+import json
 import operator
 from typing import Any
 

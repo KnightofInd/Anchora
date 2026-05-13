@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.models.compliance import ComplianceCheck, ComplianceStatus
 from app.models.decision import Decision
@@ -7,6 +8,7 @@ from app.models.policy import Policy
 from app.core.policy_engine.evaluator import LocalPolicyEvaluator
 from app.core.audit_engine.logger import audit
 from app.schemas.compliance_schema import ComplianceCheckRead, ComplianceReportRead
+from fastapi import HTTPException, status
 
 
 class ComplianceService:
