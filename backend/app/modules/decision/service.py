@@ -269,7 +269,7 @@ class DecisionService:
         await self.db.commit()
         result = await self.db.execute(
             select(Decision)
-            .options(selectinload(Decision.references), selectinload(Decision.meeting_notes))
+            .options(selectinload(Decision.references))
             .where(Decision.id == decision.id)
         )
         return result.scalar_one()
